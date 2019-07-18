@@ -14,9 +14,10 @@
     function keywordParseReturn($keyword) {
         if (preg_match("/^[0-9]*$/", $keyword)) {
             $GLOBALS["returnArray"]["Age"] = $keyword;
-            
         } else if (in_array($keyword, $GLOBALS["jsonKeys"]->Sex)) {
             $GLOBALS["returnArray"]["Sex"] = $keyword;
+        } else if (in_array(ucfirst($keyword), $GLOBALS["jsonKeys"]->Ethnicity)) {
+            $GLOBALS["returnArray"]["Ethnicity"] = $keyword;
         }
         
     }

@@ -24,15 +24,9 @@ $(document).ready(function () {
             $.getJSON("parameters.json", {
                 query: request.term
             }, function (data) {
-                console.log(request.term);
                 $.each(data, function (key, val) {
-                    //                    console.log("Key: " + key + ", ID: " + selfID);
-                    if (selfID.includes(key.toLowerCase())) {
-                        console.log("Key: " + key + ", ID: " + selfID);
-                    }
                     if (key.toLowerCase() == selfID || selfID.includes(key.toLowerCase())) {
                         data = val.filter(item => item.includes(request.term));
-                        console.log("ALKSJDLKSAJD");
                         response(data);
                     }
                 });
