@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web">
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Case Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <!-- Modal for switching or refreshing when you have nonempty vals -->
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">You have populated fields!</h5>
+                </div>
+                <div class="modal-body">
+                    <p>If you leave this tab you will lose any data you've entered into the current form, proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="modal-back" class="btn btn-secondary modal-return" data-dismiss="modal">Back</button>
+                    <button type="button" class="btn btn-primary" id="modal-proceed">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade no-close" id="quick-modal" tabindex="-1" role="dialog" aria-labelledby="quick-modal-label" aria-hidden="true">
+        <!--Modal for switching to quick tab -->
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quick-modal-label">Enter Keywords</h5>
+
+                </div>
+                <div class="modal-body form-group input-space">
+                    <p id="quick-modal-text">Enter keywords relating to the case. Disease state information is the most important. Lab values should be stylized "NameOfLab:LabValue:LabUnits" all without whitespace. The third parameter "LabUnits" is not necessary for labs which measure percentages or other self-explanatory units, but may still be used. For example, "Hermatocrit:42%", "Hermatocrit:42:%", and "HDL:67:mg/dL" are all valid, but "HDL:67mg/dL" is not. Numbers which appear on their own are assumed to be ages.</p>
+                    <textarea name="Keywords (Quick)" id="quick-modal-input" class="form-control"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="quick-modal-back" class="btn btn-secondary modal-return" data-dismiss="modal">Back</button>
+                    <button type="button" class="btn btn-secondary" id="quick-modal-proceed" disabled>Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light" id="navbar">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active disabled">
+                    <a class="nav-link" href="#" id="custom-tab">Custom <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="quick-tab">Quick</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="template-tab">Template</a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <div id="tab-container">
+        <div class="container" id="template-container">
+            <h1>Template Case Generator</h1>
+            <h2>Leave any irrelevant fields blank</h2>
+            <hr>
+            <hr>
+        </div>
+
+        <div class="container" id="quick-container">
+            <h1>Quick Case Generator</h1>
+            <h2>Leave any irrelevant fields blank</h2>
+            <hr>
+            <hr>
+            <form onsubmit="downloadQuick()" action="" method="post">
+                <h2>Demographics</h2>
+                <div id="gender-quick-div" class="form-group input-space">
+                    <label for="">Gender</label>
+                    <div class="form-check">
+                        <input class="form-check-input disable-other" type="radio" name="inlineRadioOptions" id="maleRadio" value="Male">
+                        <label class="form-check-label" for="maleRadio">Male</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input disable-other" type="radio" name="inlineRadioOptions" id="femaleRadio" value="Female">
+                        <label class="form-check-label" for="femaleRadio">Female</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="otherRadio" value="">
+                        <label class="form-check-label" for="otherRadio">
+                            <input type="text" name="Gender" id="otherGender" placeholder="Other" class="form-control" disabled>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="quick-age">Age</label>
+                    <input type="text" name="Age" id="quick-age" placeholder="Age" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="quick-race">Race/Ethnicity</label>
+                    <input type="text" name="Race" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
+                </div>
+                <hr>
+                <h2>Context</h2>
+                <div id="quick-context" class="form-group input-space">
+                    <label for="quick-chief-complaint" class="input-space">Chief Complaint / Reason for Visit</label>
+                    <textarea name="Chief Complaint (Quick)" id="quick-chief-complaint" class="form-control" placeholder="Explain the reason the patient is speaking with you."></textarea>
+                    <label for="quick-hpi" class="input-space">HPI</label>
+                    <textarea name="HPI (Quick)" id="quick-hpi" class="form-control" placeholder="Explain the history of the present illness"></textarea>
+                </div>
+                <hr>
+                <h2>History</h2>
+                <div id="quick-history" class="form-group input-space">
+                    <label for="quick-pmh">PMH</label>
+                    <textarea name="PMH (Quick)" id="quick-pmh" class="form-control" placeholder="Explain any relevant PMH."></textarea>
+                    <label for="quick-family">Family History</label>
+                    <textarea name="Family (Quick)" id="quick-family" class="form-control" placeholder="Explain any relevant family history."></textarea>
+                    <label for="quick-social">Social History</label>
+                    <textarea name="Social (Quick)" id="quick-social" class="form-control" placeholder="Explain any relevant social history."></textarea>
+                </div>
+                <hr>
+                <h2>Meds</h2>
+                <div id="meds-quick">
+                    <div class="form-row meds" id="med-info-0-quick">
+                        <div class="form-group input-space">
+                            <label for="med-name-0-quick" class="med-labels">Name</label>
+                            <input type="text" id="med-name-0-quick" name="Medication Name" placeholder="Medication Name" class="form-control med-inputs med-names">
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="med-strength-0-quick" class="med-labels">Strength</label>
+                            <input type="text" name="Medication Strength" id="med-strength-0-quick" placeholder="Medication Strength" class="form-control enable-on-name med-inputs" disabled>
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="med-dose-0-quick" class="med-labels">Dose</label>
+                            <input type="text" name="Medication Dose" id="med-dose-0-quick" placeholder="Medication Dose" class="form-control enable-on-name med-inputs" disabled>
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="med-route-0-quick" class="med-labels">Route</label>
+                            <input type="text" name="Medication Route" id="med-route-0-quick" placeholder="Medication Route" class="form-control enable-on-name med-inputs" disabled>
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="med-timing-0-quick" class="med-labels">Timing/Frequency</label>
+                            <input type="text" name="Medication Timing/Frequency" id="med-timing-0-quick" placeholder="Timing/Frequency" class="form-control enable-on-name med-inputs" disabled>
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="med-selection-criteria-0-quick" class="med-labels">Selection Criteria</label>
+                            <input type="text" name="Selection Criteria" id="med-selection-criteria-0-quick" placeholder="Selection Criteria" class="form-control enable-on-name med-inputs" disabled>
+                        </div>
+                        <div id="meds-radio-div-0" class="form-group input-space">
+                            <label for="">Before or After Visit?</label>
+                            <div class="form-check">
+                                <input class="form-check-input disable-other enable-on-name" type="radio" name="Meds Radio 0" id="before-radio-0" value="Male" disabled>
+                                <label class="form-check-label" for="before-radio-0">Before</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input disable-other enable-on-name" type="radio" name="Meds Radio 0" id="after-radio-0" value="Female" disabled>
+                                <label class="form-check-label" for="after-radio-0">After</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="add-meds btn btn-primary" type="button">+</button>
+                    <button class="remove-meds btn btn-primary" type="button" disabled>-</button>
+                </div>
+                <hr>
+                <h2>Provider Info</h2>
+                <div id="provider-info-quick" class="form-group input-space">
+                    <label for="physical-quick">Physical</label>
+                    <textarea name="Physical (Quick)" id="quick-physical" class="form-control" placeholder="Explain any relevant physical exam info."></textarea>
+                    <div id="lab-form-quick-0" class="form-row labs">
+                        <div class="form-group input-space">
+                            <label for="lab-type-quick-0">Type/Name of Lab</label>
+                            <input type="text" name="Type/Name of Lab" id="lab-type-quick-0" placeholder="Type/Name of Lab" class="form-control labs lab-types">
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="lab-result-quick-0">Results of Lab</label>
+                            <input type="text" name="Results of Lab" id="lab-result-quick-0" placeholder="Results of Lab" class="form-control labs disabled-labs" disabled>
+                        </div>
+                        <div class="form-group input-space">
+                            <label for="lab-statement-quick-0">Qualitative Statement of Lab</label>
+                            <textarea name="Statement" id="lab-statement-quick-0" placeholder="Statement/interpretation of lab values" class="form-control labs last-disabled-labs" disabled></textarea>
+                        </div>
+                    </div>
+                    <button class="add-labs btn btn-primary" type="button">+</button>
+                    <button class="remove-labs btn btn-primary" disabled type="button">-</button>
+                </div>
+                <hr>
+                <h2>Team</h2>
+                <div id="quick-healthcare-team" class="form-group input-space">
+                    <label for="quick-role">Role</label>
+                    <textarea name="Role (Quick)" id="quick-role" class="form-control" placeholder="Explain the student's role."></textarea>
+                    <label for="quick-working-with">Working With</label>
+                    <textarea name="Working With (Quick)" id="quick-working-with" class="form-control" placeholder="Explain who the patient is working with."></textarea>
+                </div>
+                <hr>
+                <h2>Patient Behavior</h2>
+                <div id="quick-patient-behavior input-space">
+                    <label for="quick-self-health">Self Health</label>
+                    <textarea name="Self Health (Quick)" id="quick-self-health" placeholder="Explain any information about the patient's compliance, home monitoring, preventative health, and self-treatment." class="form-control"></textarea>
+                </div>
+                <div id="quick-assignment input-space">
+                    <label for="quick-task">Task</label>
+                    <textarea name="Task (Quick)" id="quick-task" class="form-control" placeholder="Explain the student's task in this scenario."></textarea>
+                </div>
+                <button type="submit" id="submit-button" class="btn btn-primary input-space" style="position: fixed; bottom: 0; right: 0">Download Case</button>
+
+            </form>
+        </div>
+
+        <div class="container" id="custom-container">
+
+            <h1>Custom Case Generator</h1>
+            <h2>Leave any irrelevant fields blank</h2>
+            <hr>
+            <hr>
+
+            <form onsubmit="downloadCustom()" action="" method="post" autocomplete="off">
+                <input type="text" autocomplete="false" hidden>
+                <div class="accordion" id="dialogFormAccordion">
+
+                    <div class="card">
+                        <div class="card-header" id="demographics_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_demographics" aria-expanded="true" aria-controls="collapse_encounterStart">
+                                    Demographics
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_demographics" class="collapse show" aria-labelledby="demographics_header" data-parent="">
+                            <div class="card-body">
+                                <div id="demographics">
+                                    <div class="form-group">
+                                        <label for="name">Name</label>
+                                        <input type="text" name="name" id="name" placeholder='Name' class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="age">Age</label>
+                                        <input type="text" name="age" id="age" placeholder='Age' class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ethnicity">Ethnicity</label>
+                                        <input type="text" name="ethnicity" id="ethnicity" placeholder='Ethnicity' class="form-control">
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sex">Sex/Gender</label>
+                                        <input type="text" name="sex" id="sex" placeholder='Sex/Gender' class="form-control">
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="card">
+                        <div class="card-header" id="context_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_context" aria-expanded="true" aria-controls="collapse_context">
+                                    Context
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_context" class="collapse" aria-labelledby="context_header" data-parent="">
+                            <div class="card-body" id="context" name="context">
+                                <div class="form-group">
+                                    <label for="patient-movement">Patient Movement</label>
+                                    <input type="text" name="patient-movement" id="patient-movement" placeholder="e.g. 'Presents to', 'admitted to', 'transferred from'" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="setting">Setting</label>
+                                    <input type="text" name="setting" id="setting" placeholder="e.g. Clinic, ER, Pharmacy" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="chief-complaint">Chief Complaint</label>
+                                    <input type="text" name="chief-complaint" id="chief-complaint" placeholder='Complete the sentence, "Patient presents for...", do not include ending punctuation.' class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hpi">History of Present Illness</label>
+                                    <textarea name="hpi" rows="4" id="hpi" placeholder="Write out the full HPI as you want it to appear in the completed case." class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="history_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_history" aria-expanded="true" aria-controls="collapse_history">
+                                    History
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_history" class="collapse" aria-labelledby="history_header" data-parent="">
+                            <div class="card-body">
+                                <div id="history">
+                                    <div class="form-group">
+                                        <label for="pmh">Past Medical History / Disease States</label>
+                                        <textarea name="PMH" id="pmh" rows="4" placeholder="Write out the full PMH as you want it to appear in the completed case." class="form-control"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="family-history">Family History</label>
+                                        <textarea name="Family History" rows="4" id="family-history" placeholder="Write out the full family history as you want it to appear in the completed case." class="form-control"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="surgical-history">Surgical History</label>
+                                        <textarea name="Surgical History" rows="4" id="surgical-history" placeholder="Write out the full surgical history as you want it to appear in the completed case." class="form-control"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="immunizations">Immunizations</label>
+                                        <input type="text" name="immunizations" id="immunizations" placeholder="Write out a list of immunizations." class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="allergies">Allergies</label>
+                                        <input type="text" name="allergies" id="allergies" placeholder="Write out a list of allergies." class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="medications_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_medications" aria-expanded="true" aria-controls="collapse_medications">
+                                    Medications
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_medications" class="collapse" aria-labelledby="medications_header" data-parent="">
+                            <div class="card-body">
+                                <div id="med-container-init">
+                                    <h5>On Presentation</h5>
+                                    <div id="meds-on-presentation">
+                                        <div class="form-row meds" id="med-info-0">
+                                            <div class="form-group input-space">
+                                                <label for="med-name-0" class="med-labels">Name</label>
+                                                <input type="text" id="med-name-0" name="Medication Name" placeholder="Medication Name" class="form-control med-inputs med-names">
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-strength-0" class="med-labels">Strength</label>
+                                                <input type="text" name="Medication Strength" id="med-strength-0" placeholder="Medication Strength" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-dose-0" class="med-labels">Dose</label>
+                                                <input type="text" name="Medication Dose" id="med-dose-0" placeholder="Medication Dose" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-route-0" class="med-labels">Route</label>
+                                                <input type="text" name="Medication Route" id="med-route-0" placeholder="Medication Route" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-timing-0" class="med-labels">Timing/Frequency</label>
+                                                <input type="text" name="Medication Timing/Frequency" id="med-timing-0" placeholder="Timing/Frequency" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-selection-criteria-0" class="med-labels">Selection Criteria</label>
+                                                <input type="text" name="Selection Criteria" id="med-selection-criteria-0" placeholder="Selection Criteria" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                        </div>
+                                        <button class="add-meds btn btn-primary" type="button">+</button>
+                                        <button class="remove-meds btn btn-primary" type="button" disabled>-</button>
+                                    </div>
+
+
+                                    <hr>
+                                    <h5>Added/Changed During Visit</h5>
+                                    <div id="meds-changed">
+                                        <div class="form-row meds" id="med-info-1">
+                                            <div class="form-group input-space">
+                                                <label for="med-name-1" class="med-labels">Name</label>
+                                                <input type="text" name="Medication Name" id="med-name-1" placeholder="Medication Name" class="form-control med-inputs med-names">
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-strength-1" class="med-labels">Strength</label>
+                                                <input type="text" name="Medication Strength" id="med-strength-1" placeholder="Medication Strength" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-dose-1" class="med-labels">Dose</label>
+                                                <input type="text" name="Medication Dose" id="med-dose-1" placeholder="Medication Dose" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-route-1" class="med-labels">Route</label>
+                                                <input type="text" name="Medication Route" id="med-route-1" placeholder="Medication Route" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-timing-1" class="med-labels">Timing/Frequency</label>
+                                                <input type="text" name="Medication Timing/Frequency" id="med-timing-1" placeholder="Timing/Frequency" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-selection-criteria-1" class="med-labels">Selection Criteria</label>
+                                                <input type="text" name="Selection Criteria" id="med-selection-criteria-1" placeholder="Selection Criteria" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                        </div>
+                                        <button class="add-meds btn btn-primary" type="button">+</button>
+                                        <button class="remove-meds btn btn-primary" disabled type="button">-</button>
+                                    </div>
+                                    <hr>
+                                    <h5>After Visit</h5>
+                                    <div id="meds-after">
+                                        <div class="form-row meds" id="med-info-2">
+                                            <div class="form-group input-space">
+                                                <label for="med-name-2" class="med-labels">Name</label>
+                                                <input type="text" name="Medication Name" id="med-name-2" placeholder="Medication Name" class="form-control med-inputs med-names">
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-strength-2" class="med-labels">Strength</label>
+                                                <input type="text" name="Medication Strength" id="med-strength-2" placeholder="Medication Strength" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-dose-2" class="med-labels">Dose</label>
+                                                <input type="text" name="Medication Dose" id="med-dose-2" placeholder="Medication Dose" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-route-2" class="med-labels">Route</label>
+                                                <input type="text" name="Medication Route" id="med-route-2" placeholder="Medication Route" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-timing-2" class="med-labels">Timing/Frequency</label>
+                                                <input type="text" name="Medication Timing/Frequency" id="med-timing-2" placeholder="Timing/Frequency" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                            <div class="form-group input-space">
+                                                <label for="med-selection-criteria-2" class="med-labels">Selection Criteria</label>
+                                                <input type="text" name="Selection Criteria" id="med-selection-criteria-2" placeholder="Selection Criteria" class="form-control enable-on-name med-inputs" disabled>
+                                            </div>
+                                        </div>
+                                        <button class="add-meds btn btn-primary" type="button">+</button>
+                                        <button class="remove-meds btn btn-primary" disabled type="button">-</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="provider_info_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_provider_info" aria-expanded="true" aria-controls="collapse_provider_info">
+                                    Provider Info
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_provider_info" class="collapse" aria-labelledby="provider_info_header" data-parent="">
+                            <div class="card-body">
+                                <h5>Examinations</h5>
+                                <div id="provider-info">
+                                    <label for="exam-info" class="input-space">Physical Exam Info</label>
+                                    <textarea name="Physical Exam Information" id="exam-info" rows="4" placeholder="Write out physical examination info as you want it to appear in the completed case." class="form-control"></textarea>
+                                    <label for="systems-info" class="input-space">Review of Systems</label>
+                                    <textarea name="Body Systems Information" id="systems-info" rows="4" class="form-control" placeholder="Write out any relevant information related to body systems as you want it appear in the completed case."></textarea>
+                                    <h5 class="input-space">Labs/Vitals/Cultures/Tests</h5>
+                                    <div id="lab-form-0" class="form-row labs">
+                                        <div class="form-group input-space">
+                                            <label for="lab-type-0">Type/Name of Lab</label>
+                                            <input type="text" name="Type/Name of Lab" id="lab-type-0" placeholder="Type/Name of Lab" class="form-control labs lab-types">
+                                        </div>
+                                        <div class="form-group input-space">
+                                            <label for="lab-result-0">Results of Lab</label>
+                                            <input type="text" name="Results of Lab" id="lab-result-0" placeholder="Results of Lab" class="form-control labs disabled-labs" disabled>
+                                        </div>
+                                        <div class="form-group input-space">
+                                            <label for="lab-statement-0">Qualitative Statement of Lab</label>
+                                            <textarea name="Statement" id="lab-statement-0" rows="3" cols="40" placeholder="Statement/interpretation of lab values" class="form-control labs last-disabled-labs" disabled></textarea>
+                                        </div>
+                                    </div>
+                                    <button class="add-labs btn btn-primary" type="button">+</button>
+                                    <button class="remove-labs btn btn-primary" disabled type="button">-</button>
+                                </div>
+                                <hr>
+                                <h5>Patient Status Statement</h5>
+                                <div class="form-row">
+                                    <label for="patient-status" class="input-space">Statement</label>
+                                    <textarea name="patient-status" id="patient-status" class="form-control" rows="3" placeholder="Where is patient in visit? If there is a transition (discharge, admission, etc.) why is it happening?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="social_context_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_social_context" aria-expanded="true" aria-controls="collapse_social_context">
+                                    Social Context
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_social_context" class="collapse" aria-labelledby="social_context_header" data-parent="">
+                            <div class="card-body">
+                                <div id="social-context">
+                                    <label for="social-history" class="input-space">Social History / Social Determinants of Health</label>
+                                    <textarea name="Social History" id="social-history" cols="40" rows="3" class="form-control" placeholder="Include things like divorce, smoking, and drinking here. Write out the full history as you want it to appear in the completed case."></textarea>
+                                    <label for="family-input" class="input-space">Family Input</label>
+                                    <textarea name="Family Input" id="family-input" class="form-control" cols="40" rows="3" placeholder="Include information offered by the family about the patient, or any input/feedback given by family on treatment, meds, monitoring, etc. Write out the full family input as you want it to appear in the completed case."></textarea>
+                                    <label for="social-conflict" class="input-space">Social Conflict</label>
+                                    <textarea name="Social Conflict" id="social-conflict" cols="40" rows="3" class="form-control" placeholder="Include any disagreements the patient or their family/community has with treatment. Write out the full social conflict as you want it to appear in the completed case."></textarea>
+                                    <label for="stigma" class="input-space">Stigma</label>
+                                    <textarea name="Stigma" id="stigma" cols="40" rows="3" class="form-control" placeholder="Write out any relevant information related to stigma as you want it to appear in the completed case."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="healthcare_team_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_healthcare_team" aria-expanded="true" aria-controls="collapse_healthcare_team">
+                                    Healthcare Team
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_healthcare_team" class="collapse" aria-labelledby="healthcare_team_header" data-parent="">
+                            <div class="card-body">
+                                <div id="healthcare-team">
+                                    <label for="role" class="input-space">Role / Title</label>
+                                    <input type="text" name="Role" id="role" class="form-control" placeholder="Write out a complete sentence describing the student's role in this scenario. e.g. 'You are an intern at a local pharmacy.'">
+                                    <label for="directive" class="input-space">Responsibility / Directive</label>
+                                    <textarea name="Directive" id="directive" cols="40" rows="3" class="form-control" placeholder="Explain the responsibility of the student in this scenario. Write out a full sentence starting with 'You are asked to', 'You are tasked with', or something comparable."></textarea>
+                                    <label for="medical-team" class="input-space">Medical Team</label>
+                                    <textarea name="Medical Team" id="medical-team" cols="40" rows="3" class="form-control" placeholder="Write out a full sentence explaining who the student is working with in this case."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="patient_behaviors_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_patient_behaviors" aria-expanded="true" aria-controls="collapse_patient_behaviors">
+                                    Patient Behaviors
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_patient_behaviors" class="collapse" aria-labelledby="patient_behaviors_header" data-parent="">
+                            <div class="card-body">
+                                <div id="patient-behaviors">
+                                    <label for="compliance" class="input-space">Compliance and Adherence to Medication</label>
+                                    <textarea name="Compliance" id="compliance" cols="40" rows="3" class="form-control" placeholder="Write out a full sentence explaining patient's compliance with and adherence too medication regimen."></textarea>
+                                    <label for="adl-impact" class="input-space">ADL impact</label>
+                                    <textarea name="Adl Impact" id="adl-impact" cols="40" rows="3" class="form-control" placeholder="Explain in full sentences the impact of the patient's condition(s) on daily life."></textarea>
+                                    <label for="home-monitoring" class="input-space">Home Monitoring</label>
+                                    <textarea name="Home Monitoring" id="home-monitoring" cols="40" rows="3" class="form-control" placeholder="Describe in full sentences the patient's home behavior as it relates to their case/symptoms/disease."></textarea>
+                                    <label for="preventative-health" class="input-space">Preventative Health</label>
+                                    <textarea name="Preventative Health" id="preventative-health" cols="40" rows="3" class="form-control" placeholder="Describe in full sentences any preventative health measures the patient is taking."></textarea>
+                                    <label for="self-treatment" class="input-space">Attempted Self-Treatment</label>
+                                    <textarea name="Self Treatment" id="self-treatment" cols="40" rows="3" class="form-control" placeholder="Describe in full sentences any self-treatment the patient has attempted."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" id="case_assignment_header">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse_case_assignment" aria-expanded="true" aria-controls="collapse_case_assignment">
+                                    Case Assignment
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse_case_assignment" class="collapse" aria-labelledby="case_assignment_header" data-parent="">
+                            <div class="card-body">
+                                <div id="case-assignment">
+                                    <label for="assignment" class="input-space">Questions / Tasks</label>
+                                    <textarea name="Assignment" id="assignment" cols="40" rows="3" class="form-control" placeholder="Write out the specific question(s) to be answered based on this case. Note that this is separate from the 'Responsibility / Directive' information above. The 'Responsibility' could be a patient asking for help with pain management, and the 'Task' could be to explain why one medicine is better than another."></textarea>
+                                    <label for="additional-info" class="input-space">Additional Info</label>
+                                    <textarea name="Additional Info" id="additional-info" cols="40" rows="3" class="form-control" placeholder="Write out in full sentences any additional information necessary for this case."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+                </div>
+
+
+
+                <button type="submit" id="submit-button" class="btn btn-primary input-space" style="position: fixed; bottom: 0; right: 0">Download Case</button>
+            </form>
+        </div>
+    </div>
+    <div id="preview-box">
+        <h4>Preview</h4>
+        <hr>
+        <div id="preview"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script>
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+    </script>
+    <script src="code.js"></script>
+</body>
+
+
+
+</html>
