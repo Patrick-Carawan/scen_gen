@@ -19,14 +19,14 @@ $(document).ready(function () {
 
     $("#custom-container :text").autocomplete({
         source: function (request, response) {
-            var selfID = $(this.element[0]).prop("id");
-            var selfClass = $(this.element[0]).prop("class");
-            $.getJSON("parameters.json", {
+            var selfID = $(this.element[0]).prop("id"); // ID of autocomplete input
+            var selfClass = $(this.element[0]).prop("class"); // Class of autocomplete input
+            $.getJSON("parameters.json", { // Get the json file that holds autofill data
                 query: request.term
             }, function (data) {
-                $.each(data, function (key, val) {
+                $.each(data, function (key, val) { // Look at each json key
                     if (key.toLowerCase() == selfID || selfID.includes(key.toLowerCase())) {
-                        data = val.filter(item => item.includes(request.term));
+                        data = val.filter(item => item.toLowerCase().includes(request.term.toLowerCase())); // Filter out non-matches
                         response(data);
                     }
                 });
