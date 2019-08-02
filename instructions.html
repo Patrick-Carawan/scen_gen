@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web">
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Instructions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div class="container" id="instructions">
+        <p> Instructions
+            <hr>
+            Single quotes may not appear inside parameters, all other characters are valid.
+            <br>
+            <br>
+            The Gender, Age, and Ethnicity parameters, when single words, can appear on their own, do not need quotes around them, and are case insensitive. The following are valid entries.
+            <br>
+            <br>
+            female 39 Chinese
+            <br>
+            <br>
+            Male 21 white
+            <br>
+            <br>
+            <hr>
+            When the Gender or Ethnicity parameters are multiple words, they should appear in single quotes, the following are valid entries.
+            <br><br>
+            'transgender woman' 52 hispanic
+            <br><br>
+            male 12 'african american'
+            <br><br>
+            <hr>
+            Lab information should be stylized "'NameOfLab':'LabValue':'LabUnits':'LabStatement'", where each value is enclosed in single quotes.
+            <br>
+            <br>
+            The fourth parameter is optional. The folowing are some valid examples of lab info.
+            <br>
+            <br>
+            'Hermatocrit':'42':'%'
+            <br>
+            <br>
+            'HDL':'67':'mg/dL':'Up from last visit.'
+            <br>
+            <br>
+            <hr>
+            Medications should be stylized "'MedName':'MedStrength':'MedDoseage':'MedRoute':'MedFrequency':'SelectionCriteria':'BeforeOrAfterVisit'.
+            <br>
+            <br>
+            Any irrelevant fields may be left blank for medications. The 'BeforeOrAfterVisit' parameter indicates whether the patient was taking the medication before the visit or will be taking it after the visit. Leave blank if they were taking it before and will continue taking it after the visit. The following examples are all valid.
+            <br>
+            <br>
+            'Methylphenidate':'18 mg ER':'18 mg':'oral':'Take 1 in the morning':'Switched to ER as patient says they are too antsy in the morning':'after'
+            <br>
+            <br>
+            'Clonazepam':'2 mg':'2 mg':'':'Take half a tablet in the morning, and half at night':'':''
+            <br>
+            <br>
+            'Fluvoxamine':'200 mg':'100 mg':'':'':'after'
+            <br>
+            <br>
+            <hr>
+            Other Parameters (Do Not Include Double Quotes):
+            <br>
+            <br>
+            Chief Complaint / Reason For Visit: "'c':'Enter Info Here'"
+            <br>
+            <br>
+            Family History: "'f':'Enter Info Here'"
+            <br>
+            <br>
+            History of Present Illness: "'h':'Enter Info Here'"
+            <br>
+            <br>
+            Past Medical History: "'pm':'Enter Info Here'"
+            <br>
+            <br>
+            Physical Info: "'pi':'Enter Info Here'"
+            <br>
+            <br>
+            Role: "'r':'Enter Info Here'"
+            <br>
+            <br>
+            Self Health: "'sh':'Enter Info Here'"
+            <br>
+            <br>
+            Social History: "'s':'Enter Info Here'"
+            <br>
+            <br>
+            Task: "'t':'Enter Info Here'"
+            <br>
+            <br>
+            Working With: "'w':'Enter Info Here'"
+
+
+        </p>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script>
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+    </script>
+</body>
+
+</html>

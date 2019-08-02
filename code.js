@@ -12,21 +12,26 @@ $(document).ready(function () {
     var testTags = ["Jim", "Bob", "Pat", "Tom"];
     var request;
 
+
     $(".ui-autocomplete").css("font-size", "2em");
     $(".ui-autocomplete").css("background", "2em");
 
     $("input").prop("autocomplete", "new-password");
 
-    $("#custom-container :text").autocomplete({
+    $(":text").autocomplete({
         source: function (request, response) {
-            var selfID = $(this.element[0]).prop("id"); // ID of autocomplete input
-            var selfClass = $(this.element[0]).prop("class"); // Class of autocomplete input
-            $.getJSON("parameters.json", { // Get the json file that holds autofill data
+            var selfID = $(this.element[0]).prop("id");
+            var selfClass = $(this.element[0]).prop("class");
+            $.getJSON("parameters.json", {
                 query: request.term
             }, function (data) {
-                $.each(data, function (key, val) { // Look at each json key
+                console.log(request.term);
+                $.each(data, function (key, val) {
+                    if (selfID.includes(key.toLowerCase())) {
+                        console.log("Key: " + key + ", ID: " + selfID);
+                    }
                     if (key.toLowerCase() == selfID || selfID.includes(key.toLowerCase())) {
-                        data = val.filter(item => item.toLowerCase().includes(request.term.toLowerCase())); // Filter out non-matches
+                        data = val.filter(item => item.includes(request.term));
                         response(data);
                     }
                 });
@@ -44,7 +49,7 @@ $(document).ready(function () {
 
     $(".modal-return").click(function () {
         var goBackTab = mostRecentTab.split("-")[0] + "-tab";
-        debugger; // Just checking to see if this ever gets hit
+        //debugger; // Just checking to see if this ever gets hit
         $(mostRecentTab).siblings().css("display", "none");
         $(mostRecentTab).css("display", "block");
         $(goBackTab).parent().siblings().removeClass("active");
@@ -56,6 +61,7 @@ $(document).ready(function () {
 
     $("#modal-proceed").click(function () {
         $("input").val('');
+        $("[type='radio']").prop("checked", false);
         $("#exampleModal").modal("hide");
         $("#preview").html('');
         if (goingToQuickTab) {
@@ -67,46 +73,6 @@ $(document).ready(function () {
         }
     });
 
-    $("#quick-modal-proceed").click(function () {
-        $("#quick-modal").modal("hide"); // Hides modal when proceed is clicked
-        request = $.post("script.php", { // Post input to php
-            formData: $("#quick-modal-input").val() // formData is input
-        }, function (response) {
-            console.log(response);
-            var jsonResponse = JSON.parse(response);
-            for (var key in jsonResponse) {
-                console.log("Key: " + key + ", Val: " + jsonResponse[key]);
-                if (key != "Sex") {
-                    $("#quick-container [name='" + key + "']").val(jsonResponse[key]);
-                } else {
-                    if (jsonResponse[key][0].toLowerCase() == 'm') {
-                        $("#maleRadio").prop("checked", true);
-                    } else if (jsonResponse[key][0].toLowerCase() == 'w' || jsonResponse[key][0].toLowerCase() == 'f') {
-                        $("#femaleRadio").prop("checked", true);
-                    } else {
-                        $("#otherRadio").prop("checked", true);
-                        $("#otherGender").prop("disabled", false);
-                        $("#otherGender").val(jsonResponse[key]);
-                    }
-                }
-
-
-            }
-        });
-        request.done(function (response, textStatus, jqXHR) {
-            // Log a message to the console
-            console.log("All Good.");
-        });
-
-        // Callback handler that will be called on failure
-        request.fail(function (jqXHR, textStatus, errorThrown) {
-            // Log the error to the console
-            console.error(
-                "The following error occurred: " +
-                textStatus, errorThrown
-            );
-        });
-    });
 
 
 
@@ -141,6 +107,9 @@ $(document).ready(function () {
         }
 
     });
+
+    //$("#quick-tab").click(); // REMOVE AFTER DEBUGGING DONE
+
 
     $("#template-tab").click(function () {
         goingToQuickTab = false;
@@ -201,10 +170,6 @@ $(document).ready(function () {
         $("#quick-modal-proceed").removeClass("btn-secondary").addClass("btn-primary");
     });
 
-    //    $("#quick-container").on("keyup", "input,textarea", function () {
-    //        $("#preview").html(makeQuickString().replace(/\\r\\n/g, "<br/>"));
-    //    });
-
     $("#custom-container,#quick-container").on("keyup", ".med-names", function () {
         if ($(this).val()) {
             $(this).parent().parent().find(".enable-on-name").attr("disabled", false);
@@ -232,6 +197,7 @@ $(document).ready(function () {
 
 
     $(".remove-meds").click(function () {
+        console.log("Remove clicked");
         $(this).parent().find("[id^=med-info-]:last").remove()
         if ($(this).parent().find("[id^=med-info-]").length == 1) {
             $(this).attr("disabled", true);
@@ -239,6 +205,7 @@ $(document).ready(function () {
     });
 
     $(".add-meds").click(function () {
+        console.log("Add clicked");
         var $div = $(this).parent().find("[id^=med-info-]:last");
         var $allEntries = $(this).parent().find("[id^=med-info-]");
         // Read the Number from that DIV's ID (i.e: 3 from "med-info-3")
@@ -372,41 +339,51 @@ $(document).ready(function () {
 
     $(".add-labs").click(function () {
         var $mostRecentLab = $(this).parent().find("[id^=lab-form-]:last");
+        var $mostRecentFormID = $mostRecentLab.prop("id");
         mostRecentLabNum = parseInt($mostRecentLab.prop("id").match(/\d+/g), 10) + 1;
-        var $newLab = $mostRecentLab.clone().prop('id', 'lab-form-' + mostRecentLabNum);
+        var $newLab = $mostRecentLab.clone().prop('id', $mostRecentFormID.slice(0, $mostRecentFormID.length - 1) + mostRecentLabNum); //Clone and increment id
+        var $labTypeID = $newLab.find("[id^=lab-type-]").prop("id");
+        var $labResultID = $newLab.find("[id^=lab-result-]").prop("id");
+        var $labStatementID = $newLab.find("[id^=lab-statement-]").prop("id");
         $newLab.find("input,textarea").val('');
-        $newLab.find("[id^=lab-type-]").attr("id", "lab-type-" + mostRecentLabNum);
+        $newLab.find("[id^=lab-type-]").attr("id", $labTypeID.slice(0, $labTypeID.length - 1) + mostRecentLabNum);
         $newLab.find("[id^=lab-result-]").attr({
-            "id": "lab-result-" + mostRecentLabNum,
+            "id": $labResultID.slice(0, $labResultID.length - 1) + mostRecentLabNum,
             "disabled": true
         });
         $newLab.find("[id^=lab-statement-]").prop({
-            "id": "lab-statement-" + mostRecentLabNum,
+            "id": $labStatementID.slice(0, $labStatementID.length - 1) + mostRecentLabNum,
             "disabled": true
         });
-        $newLab.find("[for^=lab-type-]").attr("for", "lab-type-" + mostRecentLabNum);
-        $newLab.find("[for^=lab-result-]").attr("for", "lab-result-" + mostRecentLabNum);
-        $newLab.find("[for^=lab-statement-]").prop("for", "lab-statement-" + mostRecentLabNum);
+        $newLab.find("[for^=lab-type-]").attr("for", $labTypeID.slice(0, $labTypeID.length - 1) + mostRecentLabNum);
+        $newLab.find("[for^=lab-result-]").attr("for", $labResultID.slice(0, $labResultID.length - 1) + mostRecentLabNum);
+        $newLab.find("[for^=lab-statement-]").prop("for", $labStatementID.slice(0, $labStatementID.length - 1) + mostRecentLabNum);
         $(this).before($newLab).html();
-        $(".remove-labs").attr("disabled", false);
+        $(this).parent().find(".remove-labs").prop("disabled", false);
     });
 
-    $(".remove-labs").click(function () {
-        $("#lab-form-" + mostRecentLabNum).remove();
+    $(".remove-labs").click(function () { // Left off here, doesn't work in custom tab for unknown reason
+        console.log("Lab removed")
+        $(this).parent().find("[id^=lab-form-]:last").remove();
         mostRecentLabNum -= 1;
         if (mostRecentLabNum == 0) {
-            $(".remove-labs").attr("disabled", true);
+            $(this).attr("disabled", true);
         }
     });
 
     $(".add-lab-statements").click(function () {
-        var $mostRecentLabStatement = $('div[id^=lab-statement-form-]:last');
+        var $mostRecentLabStatement = $(this).parent().find('div[id^=lab-form-]:last');
+        var $mostRecentIDSlice = $mostRecentLabStatement.prop("id").slice(0, $mostRecentLabStatement.prop("id").length - 1);
         mostRecentLabStatementNum = parseInt($mostRecentLabStatement.prop("id").match(/\d+/g), 10) + 1;
-        var $newLabStatement = $mostRecentLabStatement.clone().prop('id', "lab-statement-form-" + mostRecentLabStatementNum);
-        $newLabStatement.find("[id^=lab-statement-type-]").prop("id", "lab-statement-type-" + mostRecentLabStatementNum);
-        $newLabStatement.find("[id^=lab-statement-]").prop("id", "lab-statement-" + mostRecentLabStatementNum);
+        var $newLabStatement = $mostRecentLabStatement.clone().prop('id', $mostRecentIDSlice + mostRecentLabStatementNum);
+        var $typeIDSlice = $newLabStatement.find("[id^=lab-type-]").prop("id").slice(0, $newLabStatement.find("[id^=lab-type-]").prop("id").length - 1);
+        var $resultIDSlice = $newLabStatement.find("[id^=lab-result-]").prop("id").slice(0, $newLabStatement.find("[id^=lab-result-]").prop("id").length - 1);
+        var $statementIDSlice = $newLabStatement.find("[id^=lab-statement-]").prop("id").slice(0, $newLabStatement.find("[id^=lab-statement-]").prop("id").length - 1);
+        $newLabStatement.find("[id^=lab-type-]").prop("id", $typeIDSlice + mostRecentLabStatementNum);
+        $newLabStatement.find("[id^=lab-result-]").prop("id", $resultIDSlice + mostRecentLabStatementNum);
+        $newLabStatement.find("[id^=lab-statement-]").prop("id", $statementIDSlice + mostRecentLabStatementNum);
         $(this).before($newLabStatement).html();
-        $(".remove-lab-statements").prop("disabled", false);
+        $(".remove-labs").prop("disabled", false);
     });
 
     $(".remove-lab-statements").click(function () {
@@ -417,6 +394,149 @@ $(document).ready(function () {
         }
     });
 
+    $("#quick-modal-proceed").click(function () {
+        $("#quick-modal").modal("hide"); // Hides modal when proceed is clicked
+        request = $.post("script.php", { // Post input to php
+            formData: $("#quick-modal-input").val() // formData is input
+        }, function (response) { // Get back response
+            $("#quick-modal-input").val(''); // Reset value of modal input
+            //$("#preview").html(makeQuickString(JSON.parse(response))); // Construct preview (NOT WORKING)
+            console.log(response);
+            debugger;
+            var jsonResponse = JSON.parse(response); // Parse response into array
+            for (var key in jsonResponse) { // Go through each value and find where it belongs
+                console.log("Key: " + key + ", Val: " + jsonResponse[key]);
+                if (key == "Age") {
+                    $("#quick-age").val(jsonResponse[key])
+                } else if (key == "Sex") {
+                    if (jsonResponse[key][0].toLowerCase() == 'm') {
+                        $("#maleRadio").prop("checked", true);
+                    } else if (jsonResponse[key][0].toLowerCase() == 'w' || jsonResponse[key][0].toLowerCase() == 'f') {
+                        $("#femaleRadio").prop("checked", true);
+                    } else {
+                        $("#otherRadio").prop("checked", true);
+                        $("#otherGender").prop("disabled", false);
+                        $("#otherGender").val(jsonResponse[key]);
+                    }
+                } else if (key == "Labs") {
+                    var labCount = 0;
+                    console.log(jsonResponse["Labs"].length);
+                    for (var lab in jsonResponse[key]) {
+                        $("#lab-type-quick-" + labCount).val(jsonResponse[key][labCount]["Lab Name"]);
+                        $("#lab-result-quick-" + labCount).val(jsonResponse[key][labCount]["Lab Value"] + ' ' + jsonResponse[key][labCount]["Lab Units"]);
+                        $("#lab-result-quick-" + labCount).prop("disabled", false);
+                        $("#lab-statement-quick-" + labCount).prop("disabled", false);
+                        if (Object.keys(jsonResponse[key][labCount]).length == 4) {
+                            $("#lab-statement-quick-" + labCount).val(jsonResponse[key][labCount]["Lab Statement"]);
+                        }
+                        $("#quick-add-labs").click();
+                        labCount += 1;
+                    }
+                    $("#quick-remove-labs").click();
+                } else if (key == "Meds") {
+
+                    for (var med in jsonResponse[key]) {
+                        var ba = jsonResponse[key][med]["Before / After"];
+                        var ba_kws = ["before", "b"];
+                        $("#med-name-" + med + "-quick").val(jsonResponse[key][med]["Medication Name"]);
+                        $("#med-strength-" + med + "-quick").val(jsonResponse[key][med]["Medication Strength"]);
+                        $("#med-dose-" + med + "-quick").val(jsonResponse[key][med]["Medication Dose"]);
+                        $("#med-route-" + med + "-quick").val(jsonResponse[key][med]["Medication Route"]);
+                        $("#med-timing-" + med + "-quick").val(jsonResponse[key][med]["Medication Timing/Frequency"]);
+                        $("#med-selection-criteria-" + med + "-quick").val(jsonResponse[key][med]["Selection Criteria"]);
+
+                        $("#med-strength-" + med + "-quick").prop("disabled", false);
+                        $("#med-dose-" + med + "-quick").prop("disabled", false);
+                        $("#med-route-" + med + "-quick").prop("disabled", false);
+                        $("#med-timing-" + med + "-quick").prop("disabled", false);
+                        $("#med-selection-criteria-" + med + "-quick").prop("disabled", false);
+
+                        if (ba_kws.indexOf(ba.toLowerCase()) != -1) {
+                            $("#before-radio-" + med).prop({
+                                "checked": true,
+                                "disabled": false
+                            });
+                            $("#after-radio-" + med).prop("disabled", false);
+
+                        } else {
+                            $("#after-radio-" + med).prop({
+                                "checked": true,
+                                "disabled": false
+                            });
+                            $("#before-radio-" + med).prop("disabled", false);
+                        }
+                    }
+                } else if (key == "Ethnicity") {
+
+                    $("#quick-race").val(jsonResponse[key]);
+
+                } else if (key == "Chief Complaint") {
+
+                    $("#quick-chief-complaint").val(jsonResponse[key]);
+
+                } else if (key == "Family History") {
+
+                    $("#quick-family").val(jsonResponse[key]);
+
+                } else if (key == "HPI") {
+
+                    $("#quick-hpi").val(jsonResponse[key]);
+
+                } else if (key == "PMH") {
+
+                    $("#quick-pmh").val(jsonResponse[key]);
+
+                } else if (key == "Physical Info") {
+
+                    $("#quick-physical").val(jsonResponse[key]);
+
+                } else if (key == "Role") {
+
+                    $("#quick-role").val(jsonResponse[key]);
+
+                } else if (key == "Self Health") {
+
+                    $("#quick-self-health").val(jsonResponse[key]);
+
+                } else if (key == "Social History") {
+
+                    $("#quick-social").val(jsonResponse[key]);
+
+                } else if (key == "Working With") {
+
+                    $("#quick-working-with").val(jsonResponse[key]);
+
+                } else if (key == "Task") {
+
+                    $("#quick-task").val(jsonResponse[key]);
+
+                } else {
+
+                    $("#quick-container [name='" + key + "']").val(jsonResponse[key]);
+
+                }
+
+
+            }
+        });
+        request.done(function (response, textStatus, jqXHR) {
+            // Log a message to the console
+            console.log("All Good.");
+        });
+
+        // Callback handler that will be called on failure
+        request.fail(function (jqXHR, textStatus, errorThrown) {
+            // Log the error to the console
+            console.error(
+                "The following error occurred: " +
+                textStatus, errorThrown
+            );
+        });
+    });
+    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 21 male 'lab':'val':'unit' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'pi':'phys info' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
+    $("#quick-modal-proceed").prop("disabled", false); // Debugging
+    $("#quick-modal-proceed").click(); // Debugging
+    $("#quick-tab").click(); // Debugging
 
 });
 
@@ -438,10 +558,9 @@ function downloadCustom() {
     return false;
 }
 
-function makeCustomString() {
+function makeCustomString() { // Makes preview string from inputs using helper functions
     setPatientName();
     var fullStatement = '';
-    // var introStatement = $('#name').val() + " is a " + $("#age").val() + " year-old " + $("#ethnicity").val() + ' ' + $("#sex").val() + ". ";
     var demographics = cleanDemographics($("#demographics input").serializeArray());
     var context = cleanContext($("#context input").serializeArray());
     var history = cleanHistory($("#history input,#history textarea").serializeArray());
@@ -458,8 +577,13 @@ function makeCustomString() {
     return demographics + context + history + medicationsOnPresentation + medsChanged + medsAfter + providerInfo + labInfo + patientStatus + socialContext + healthcareTeam + patientBehaviors + caseAssignment;
 }
 
-function makeQuickString() {
-    // TODO
+function makeQuickString(_arr) { // Makes preview string from quick input
+    //    if (isEmpty(_arr)) {
+    //        return '';
+    //    }
+    //    for (let [key, value] of _arr) {
+    //
+    //    }
 }
 
 function cleanDemographics(_formInput) {
@@ -617,7 +741,7 @@ function cleanLabInfo(_formInput) {
     var labInfo = '';
     formInput.forEach(item => {
         if (item["name"] == "Type/Name of Lab") {
-            labinfo += "\r\n";
+            labInfo += "\r\n";
         }
         labInfo += item["name"] + ": " + item["value"] + "\r\n";
     });
@@ -676,4 +800,12 @@ function setPatientName() {
         patientName = "Patient";
     }
     return
+}
+
+function isEmpty(obj) {
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
 }

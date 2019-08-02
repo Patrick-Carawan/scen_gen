@@ -41,7 +41,7 @@
 
                 </div>
                 <div class="modal-body form-group input-space">
-                    <p id="quick-modal-text">Enter keywords relating to the case. Disease state information is the most important. Lab values should be stylized "NameOfLab:LabValue:LabUnits" all without whitespace. The third parameter "LabUnits" is not necessary for labs which measure percentages or other self-explanatory units, but may still be used. For example, "Hermatocrit:42%", "Hermatocrit:42:%", and "HDL:67:mg/dL" are all valid, but "HDL:67mg/dL" is not. Numbers which appear on their own are assumed to be ages.</p>
+                    <p id="quick-modal-text">Enter keywords relating to the case. Click <a href="instructions.html" target="_blank">here</a> for instructions.</p>
                     <textarea name="Keywords (Quick)" id="quick-modal-input" class="form-control"></textarea>
                 </div>
                 <div class="modal-footer">
@@ -111,7 +111,7 @@
                 </div>
                 <div class="form-group">
                     <label for="quick-race">Race/Ethnicity</label>
-                    <input type="text" name="Ethnicity" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
+                    <input type="text" name="Race" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
                 </div>
                 <hr>
                 <h2>Context</h2>
@@ -193,8 +193,8 @@
                             <textarea name="Statement" id="lab-statement-quick-0" placeholder="Statement/interpretation of lab values" class="form-control labs last-disabled-labs" disabled></textarea>
                         </div>
                     </div>
-                    <button class="add-labs btn btn-primary" type="button">+</button>
-                    <button class="remove-labs btn btn-primary" disabled type="button">-</button>
+                    <button class="add-labs btn btn-primary" id="quick-add-labs" type="button">+</button>
+                    <button class="remove-labs btn btn-primary" id="quick-remove-labs" disabled type="button">-</button>
                 </div>
                 <hr>
                 <h2>Team</h2>

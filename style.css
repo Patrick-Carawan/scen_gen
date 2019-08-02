@@ -167,3 +167,10 @@ label {
 #quick-modal-text {
     color: black;
 }
+
+#instructions {
+    width: 80%;
+    float: none;
+    color: black;
+    font-size: 1.9em;
+}
