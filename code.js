@@ -402,7 +402,7 @@ $(document).ready(function () {
             $("#quick-modal-input").val(''); // Reset value of modal input
             //$("#preview").html(makeQuickString(JSON.parse(response))); // Construct preview (NOT WORKING)
             console.log(response);
-            debugger;
+            //debugger;
             var jsonResponse = JSON.parse(response); // Parse response into array
             for (var key in jsonResponse) { // Go through each value and find where it belongs
                 console.log("Key: " + key + ", Val: " + jsonResponse[key]);
@@ -533,10 +533,10 @@ $(document).ready(function () {
             );
         });
     });
-    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 21 male 'lab':'val':'unit' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'pi':'phys info' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
-    $("#quick-modal-proceed").prop("disabled", false); // Debugging
-    $("#quick-modal-proceed").click(); // Debugging
-    $("#quick-tab").click(); // Debugging
+    //$("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 21 male 'lab':'val':'unit' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'pi':'phys info' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
+    //$("#quick-modal-proceed").prop("disabled", false); // Debugging
+    //$("#quick-modal-proceed").click(); // Debugging
+    //$("#quick-tab").click(); // Debugging
 
 });
 
