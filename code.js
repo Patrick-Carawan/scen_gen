@@ -362,7 +362,7 @@ $(document).ready(function () {
         $(this).parent().find(".remove-labs").prop("disabled", false);
     });
 
-    $(".remove-labs").click(function () { // Left off here, doesn't work in custom tab for unknown reason
+    $(".remove-labs").click(function () {
         console.log("Lab removed")
         $(this).parent().find("[id^=lab-form-]:last").remove();
         mostRecentLabNum -= 1;
@@ -400,7 +400,6 @@ $(document).ready(function () {
             formData: $("#quick-modal-input").val() // formData is input
         }, function (response) { // Get back response
             $("#quick-modal-input").val(''); // Reset value of modal input
-            //$("#preview").html(makeQuickString(JSON.parse(response))); // Construct preview (NOT WORKING)
             console.log(response);
             //debugger;
             var jsonResponse = JSON.parse(response); // Parse response into array
@@ -437,6 +436,7 @@ $(document).ready(function () {
 
                     for (var med in jsonResponse[key]) {
                         var ba = jsonResponse[key][med]["Before / After"];
+
                         var ba_kws = ["before", "b"];
                         $("#med-name-" + med + "-quick").val(jsonResponse[key][med]["Medication Name"]);
                         $("#med-strength-" + med + "-quick").val(jsonResponse[key][med]["Medication Strength"]);
@@ -451,7 +451,7 @@ $(document).ready(function () {
                         $("#med-timing-" + med + "-quick").prop("disabled", false);
                         $("#med-selection-criteria-" + med + "-quick").prop("disabled", false);
 
-                        if (ba_kws.indexOf(ba.toLowerCase()) != -1) {
+                        if (ba_kws.indexOf(ba.toLowerCase()) != -1) { // check if the before keyword is present
                             $("#before-radio-" + med).prop({
                                 "checked": true,
                                 "disabled": false
@@ -465,7 +465,9 @@ $(document).ready(function () {
                             });
                             $("#before-radio-" + med).prop("disabled", false);
                         }
+                        $("#add-meds-quick").click();
                     }
+                    $("#remove-meds-quick").click();
                 } else if (key == "Ethnicity") {
 
                     $("#quick-race").val(jsonResponse[key]);
@@ -517,7 +519,9 @@ $(document).ready(function () {
                 }
 
 
+
             }
+            $("#preview").html(makeQuickString(JSON.parse(response))); // Construct preview
         });
         request.done(function (response, textStatus, jqXHR) {
             // Log a message to the console
@@ -533,10 +537,10 @@ $(document).ready(function () {
             );
         });
     });
-    //$("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 21 male 'lab':'val':'unit' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'pi':'phys info' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
-    //$("#quick-modal-proceed").prop("disabled", false); // Debugging
-    //$("#quick-modal-proceed").click(); // Debugging
-    //$("#quick-tab").click(); // Debugging
+    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 'med2':'st2':'dose2':'route2':'timing2':'selection2':'a' 21 'transgender male' 'lab':'val':'unit' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'pi':'phys info' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
+    $("#quick-modal-proceed").prop("disabled", false); // Debugging
+    $("#quick-modal-proceed").click(); // Debugging
+    $("#quick-tab").click(); // Debugging
 
 });
 
@@ -561,32 +565,139 @@ function downloadCustom() {
 function makeCustomString() { // Makes preview string from inputs using helper functions
     setPatientName();
     var fullStatement = '';
-    var demographics = cleanDemographics($("#demographics input").serializeArray());
-    var context = cleanContext($("#context input").serializeArray());
-    var history = cleanHistory($("#history input,#history textarea").serializeArray());
-    var medicationsOnPresentation = cleanMeds($("#meds-on-presentation .med-inputs").serializeArray());
-    var medsChanged = cleanMeds($("#meds-changed .med-inputs").serializeArray());
-    var medsAfter = cleanMeds($("#meds-after .med-inputs").serializeArray());
-    var providerInfo = cleanProviderInfo($("#provider-info > textarea").serializeArray());
-    var labInfo = cleanLabInfo($("#provider-info .labs").serializeArray());
-    var patientStatus = cleanPatientStatus($("#patient-status").val());
-    var socialContext = cleanSocialContext($("#social-context textarea").serializeArray());
-    var healthcareTeam = cleanHealthcareTeam($("#healthcare-team input, #healthcare-team textarea").serializeArray());
-    var patientBehaviors = cleanPatientBehaviors($("#patient-behaviors textarea").serializeArray());
-    var caseAssignment = cleanCaseAssignment($("#case-assignment textarea").serializeArray());
+    var demographics = cleanCustomDemographics($("#demographics input").serializeArray());
+    var context = cleanCustomContext($("#context input").serializeArray());
+    var history = cleanCustomHistory($("#history textarea").serializeArray());
+    var medicationsOnPresentation = cleanCustomMeds($("#meds-on-presentation .med-inputs").serializeArray());
+    var medsChanged = cleanCustomMeds($("#meds-changed .med-inputs").serializeArray());
+    var medsAfter = cleanCustomMeds($("#meds-after .med-inputs").serializeArray());
+    var providerInfo = cleanCustomProviderInfo($("#provider-info > textarea").serializeArray());
+    var labInfo = cleanCustomLabInfo($("#provider-info .labs").serializeArray());
+    var patientStatus = cleanCustomPatientStatus($("#patient-status").val());
+    var socialContext = cleanCustomSocialContext($("#social-context textarea").serializeArray());
+    var healthcareTeam = cleanCustomHealthcareTeam($("#healthcare-team input, #healthcare-team textarea").serializeArray());
+    var patientBehaviors = cleanCustomPatientBehaviors($("#patient-behaviors textarea").serializeArray());
+    var caseAssignment = cleanCustomCaseAssignment($("#case-assignment textarea").serializeArray());
     return demographics + context + history + medicationsOnPresentation + medsChanged + medsAfter + providerInfo + labInfo + patientStatus + socialContext + healthcareTeam + patientBehaviors + caseAssignment;
 }
 
 function makeQuickString(_arr) { // Makes preview string from quick input
-    //    if (isEmpty(_arr)) {
-    //        return '';
-    //    }
-    //    for (let [key, value] of _arr) {
-    //
-    //    }
+    var demographics = cleanQuickDemographics($("#quick-demographics input").serializeArray());
+    var context = cleanQuickContext($("#quick-context textarea").serializeArray());
+    var history = cleanQuickHistory($("#quick-history textarea").serializeArray());
+    var medications = cleanQuickMeds($("#meds-quick .med-inputs").serializeArray());
+    var providerInfo = cleanQuickProviderInfo($("#provider-info-quick > textarea").serializeArray());
+    var labInfo = cleanQuickLabInfo($("#provider-info-quick .labs").serializeArray());
+    var healthcareTeam = cleanQuickHealthcareTeam($("#quick-healthcare-team input, #quick-healthcare-team textarea").serializeArray());
+    var patientBehaviors = cleanQuickSelfHealth($("#quick-self-health").val());
+    var caseAssignment = cleanQuickTask($("#quick-task").val());
+    return demographics + context + history + medications;
 }
 
-function cleanDemographics(_formInput) {
+function cleanQuickDemographics(_formInput) {
+    var formInput = [];
+    for (var key in _formInput) {
+        if (_formInput[key]["value"]) formInput.push(_formInput[key]); // Check if input has a value
+    }
+    if (formInput.length == 3) { // Then construct the appropriate string base don the populated values.
+        return "Your patient is a " + formInput[1]["value"] + " year-old " + formInput[2]["value"] + " " + formInput[0]["value"] + ".\r\n";
+    }
+    if (formInput.length == 2) {
+        if (formInput[0]["name"] == "Gender" || formInput["name"] == "inlineRadioOptions") {
+            if (formInput[1]["name"] == "Age") {
+                return "Your patient is a " + formInput[1]["value"] + " year old " + formInput[0]["value"] + ".\r\n";
+            } else {
+                return "Your patient is a " + formInput[1]["value"] + " " + formInput[0]["value"] + ".\r\n";
+            }
+        } else {
+            return "Your patient is " + formInput[0]["value"] + " years old and " + formInput[1]["value"] + ".\r\n";
+        }
+    }
+    if (formInput[0]["name"] == "inlineRadioOptions" || formInput[0]["name"] == "Gender") {
+        return "Your patient is a " + formInput[0]["value"] + ".\r\n";
+    } else if (formInput[0]["name"] == "Age") {
+        return "Your patient is " + formInput[0]["value"] + " years old.\r\n";
+    } else {
+        return "Your patient is " + formInput[0]["value"] + ".\r\n";
+    }
+}
+
+function cleanQuickContext(_formInput) {
+    return _formInput[0]["value"] + " " + _formInput[0]["value"];
+}
+
+function cleanQuickHistory(_formInput) {
+    return _formInput[0]["value"] + "\r\n" + _formInput[1]["value"] + "\r\n" + _formInput[2]["value"] + "\r\n";
+}
+
+function cleanQuickMeds(_formInput) {
+    var formInput = [];
+    var mapHolder = new Map();
+    var medCount = 0;
+    for (var parameter in _formInput) { // Separates meds into their own array elements
+        if (parameter != 0 && _formInput[parameter]["name"] == "Medication Name") {
+            for (var i = medCount; i < parameter; i++) {
+                mapHolder.set(_formInput[i]["name"], _formInput[i]["value"]); // Put all parameters for each medication in their own map.
+            }
+            formInput.push(mapHolder); // Then add it to formInput
+            medCount = parameter;
+        }
+    }
+
+    mapHolder.clear();
+
+    for (var i = medCount; i < _formInput.length; i++) { // add the final medication to formInput.
+        mapHolder.set(_formInput[i]["name"], _formInput[i]["value"]);
+    }
+
+    formInput.push(mapHolder);
+
+    for (var med in formInput) {
+        debugger;
+        console.log(formInput[med].get("Medication Strength"));
+        if (formInput[med].size == 7) {
+            debugger;
+            return "Patient " + (formInput[med].get("Meds Radio " + med.toString()) == "Before" ? "was" : "is now") + " on " + formInput[med].get("Medication Name") + " " + formInput[med].get("Medication Strength") + " taking " + formInput[med].get("Medication Dose") + " " + formInput[med].get("Medication Route") + " " + formInput[med].get("Medication Timing/Frequency") + ". " + formInput[med].get("Selection Criteria");
+        }
+        if (formInput.length == 6) {
+
+        }
+        if (formInput.length == 5) {
+
+        }
+        if (formInput.length == 4) {
+
+        }
+        if (formInput.length == 3) {
+
+        }
+        if (formInput.length == 2) {
+
+        }
+    }
+}
+
+function cleanQuickProviderInfo(_formInput) {
+
+}
+
+function cleanQuickLabInfo(_formInput) {
+
+}
+
+function cleanQuickHealthcareTeam(_formInput) {
+
+}
+
+function cleanQuickSelfHealth(_formInput) {
+
+}
+
+function cleanQuickTask(_formInput) {
+
+}
+
+function cleanCustomDemographics(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     if (formInput.length == 0) {
         return '';
@@ -646,7 +757,7 @@ function cleanDemographics(_formInput) {
     }
 }
 
-function cleanContext(_formInput) {
+function cleanCustomContext(_formInput) {
     var hpi = '';
     if ($("#hpi").val()) {
         hpi = "\r\nHPI: \r\n" + $("#hpi").val();
@@ -685,7 +796,7 @@ function cleanContext(_formInput) {
     }
 }
 
-function cleanHistory(_formInput) {
+function cleanCustomHistory(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var history = '';
     formInput.forEach(item => {
@@ -701,7 +812,7 @@ function cleanHistory(_formInput) {
     return history;
 }
 
-function cleanMeds(_formInput) {
+function cleanCustomMeds(_formInput) {
     var formInput = _formInput.filter(item => item["value"]); // Removes empty elements
     var meds = '';
     var medList = [];
@@ -727,7 +838,7 @@ function cleanMeds(_formInput) {
     return meds + "__\r\n\r\n";
 }
 
-function cleanProviderInfo(_formInput) {
+function cleanCustomProviderInfo(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var providerInfo = '';
     formInput.forEach(item => {
@@ -736,7 +847,7 @@ function cleanProviderInfo(_formInput) {
     return providerInfo + "\r\n\r\n";
 }
 
-function cleanLabInfo(_formInput) {
+function cleanCustomLabInfo(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var labInfo = '';
     formInput.forEach(item => {
@@ -748,7 +859,7 @@ function cleanLabInfo(_formInput) {
     return labInfo + "\r\n\r\n";
 }
 
-function cleanPatientStatus(_formInput) {
+function cleanCustomPatientStatus(_formInput) {
     if (_formInput) {
         return "Patient Status: \r\n" + _formInput + "\r\n\r\n";
     } else {
@@ -756,7 +867,7 @@ function cleanPatientStatus(_formInput) {
     }
 }
 
-function cleanSocialContext(_formInput) {
+function cleanCustomSocialContext(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var socialContext = '';
     formInput.forEach(item => {
@@ -765,7 +876,7 @@ function cleanSocialContext(_formInput) {
     return socialContext + "\r\n\r\n";
 }
 
-function cleanHealthcareTeam(_formInput) {
+function cleanCustomHealthcareTeam(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var healthcareTeam = '';
     formInput.forEach(item => {
@@ -775,7 +886,7 @@ function cleanHealthcareTeam(_formInput) {
 
 }
 
-function cleanPatientBehaviors(_formInput) {
+function cleanCustomPatientBehaviors(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var patientBehavior = '';
     formInput.forEach(item => {
@@ -784,7 +895,7 @@ function cleanPatientBehaviors(_formInput) {
     return patientBehavior + "\r\n\r\n";
 }
 
-function cleanCaseAssignment(_formInput) {
+function cleanCustomCaseAssignment(_formInput) {
     var formInput = _formInput.filter(item => item["value"]);
     var caseAssignment = '';
     formInput.forEach(item => {

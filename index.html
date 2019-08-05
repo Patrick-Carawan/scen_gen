@@ -88,31 +88,34 @@
             <hr>
             <form onsubmit="downloadQuick()" action="" method="post">
                 <h2>Demographics</h2>
-                <div id="gender-quick-div" class="form-group input-space">
-                    <label for="">Gender</label>
-                    <div class="form-check">
-                        <input class="form-check-input disable-other" type="radio" name="inlineRadioOptions" id="maleRadio" value="Male">
-                        <label class="form-check-label" for="maleRadio">Male</label>
+                <div id="quick-demographics">
+                    <div id="gender-quick-div" class="form-group input-space">
+                        <label for="">Gender</label>
+                        <div class="form-check">
+                            <input class="form-check-input disable-other" type="radio" name="inlineRadioOptions" id="maleRadio" value="Male">
+                            <label class="form-check-label" for="maleRadio">Male</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input disable-other" type="radio" name="inlineRadioOptions" id="femaleRadio" value="Female">
+                            <label class="form-check-label" for="femaleRadio">Female</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="otherRadio" value="">
+                            <label class="form-check-label" for="otherRadio">
+                                <input type="text" name="Gender" id="otherGender" placeholder="Other" class="form-control" disabled>
+                            </label>
+                        </div>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input disable-other" type="radio" name="inlineRadioOptions" id="femaleRadio" value="Female">
-                        <label class="form-check-label" for="femaleRadio">Female</label>
+                    <div class="form-group">
+                        <label for="quick-age">Age</label>
+                        <input type="text" name="Age" id="quick-age" placeholder="Age" class="form-control">
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="otherRadio" value="">
-                        <label class="form-check-label" for="otherRadio">
-                            <input type="text" name="Gender" id="otherGender" placeholder="Other" class="form-control" disabled>
-                        </label>
+                    <div class="form-group">
+                        <label for="quick-race">Race/Ethnicity</label>
+                        <input type="text" name="Race" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="quick-age">Age</label>
-                    <input type="text" name="Age" id="quick-age" placeholder="Age" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="quick-race">Race/Ethnicity</label>
-                    <input type="text" name="Race" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
-                </div>
+
                 <hr>
                 <h2>Context</h2>
                 <div id="quick-context" class="form-group input-space">
@@ -162,17 +165,17 @@
                         <div id="meds-radio-div-0" class="form-group input-space">
                             <label for="">Before or After Visit?</label>
                             <div class="form-check">
-                                <input class="form-check-input disable-other enable-on-name" type="radio" name="Meds Radio 0" id="before-radio-0" value="Male" disabled>
+                                <input class="form-check-input disable-other enable-on-name med-inputs" type="radio" name="Meds Radio 0" id="before-radio-0" value="Before" disabled>
                                 <label class="form-check-label" for="before-radio-0">Before</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input disable-other enable-on-name" type="radio" name="Meds Radio 0" id="after-radio-0" value="Female" disabled>
+                                <input class="form-check-input disable-other enable-on-name med-inputs" type="radio" name="Meds Radio 0" id="after-radio-0" value="After" disabled>
                                 <label class="form-check-label" for="after-radio-0">After</label>
                             </div>
                         </div>
                     </div>
-                    <button class="add-meds btn btn-primary" type="button">+</button>
-                    <button class="remove-meds btn btn-primary" type="button" disabled>-</button>
+                    <button class="add-meds btn btn-primary" id="add-meds-quick" type="button">+</button>
+                    <button class="remove-meds btn btn-primary" id="remove-meds-quick" type="button" disabled>-</button>
                 </div>
                 <hr>
                 <h2>Provider Info</h2>
@@ -202,16 +205,18 @@
                     <label for="quick-role">Role</label>
                     <textarea name="Role (Quick)" id="quick-role" class="form-control" placeholder="Explain the student's role."></textarea>
                     <label for="quick-working-with">Working With</label>
-                    <textarea name="Working With (Quick)" id="quick-working-with" class="form-control" placeholder="Explain who the patient is working with."></textarea>
+                    <textarea name="Working With (Quick)" id="quick-working-with" class="form-control" placeholder="Explain who the student is working with."></textarea>
                 </div>
                 <hr>
                 <h2>Patient Behavior</h2>
+
                 <div id="quick-patient-behavior input-space">
                     <label for="quick-self-health">Self Health</label>
                     <textarea name="Self Health (Quick)" id="quick-self-health" placeholder="Explain any information about the patient's compliance, home monitoring, preventative health, and self-treatment." class="form-control"></textarea>
                 </div>
+                <hr>
                 <div id="quick-assignment input-space">
-                    <label for="quick-task">Task</label>
+                    <h2><label for="quick-task">Task</label></h2>
                     <textarea name="Task (Quick)" id="quick-task" class="form-control" placeholder="Explain the student's task in this scenario."></textarea>
                 </div>
                 <button type="submit" id="submit-button" class="btn btn-primary input-space" style="position: fixed; bottom: 0; right: 0">Download Case</button>
