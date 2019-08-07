@@ -182,22 +182,25 @@
                 <div id="provider-info-quick" class="form-group input-space">
                     <label for="physical-quick">Physical</label>
                     <textarea name="Physical (Quick)" id="quick-physical" class="form-control" placeholder="Explain any relevant physical exam info."></textarea>
-                    <div id="lab-form-quick-0" class="form-row labs">
-                        <div class="form-group input-space">
-                            <label for="lab-type-quick-0">Type/Name of Lab</label>
-                            <input type="text" name="Type/Name of Lab" id="lab-type-quick-0" placeholder="Type/Name of Lab" class="form-control labs lab-types">
+                    <div id="quick-lab-holder">
+                        <div id="lab-form-quick-0" class="form-row labs">
+                            <div class="form-group input-space">
+                                <label for="lab-type-quick-0">Type/Name of Lab</label>
+                                <input type="text" name="Type/Name of Lab" id="lab-type-quick-0" placeholder="Type/Name of Lab" class="form-control labs lab-types">
+                            </div>
+                            <div class="form-group input-space">
+                                <label for="lab-result-quick-0">Results of Lab</label>
+                                <input type="text" name="Results of Lab" id="lab-result-quick-0" placeholder="Results of Lab" class="form-control labs disabled-labs" disabled>
+                            </div>
+                            <div class="form-group input-space">
+                                <label for="lab-statement-quick-0">Qualitative Statement of Lab</label>
+                                <textarea name="Statement" id="lab-statement-quick-0" placeholder="Statement/interpretation of lab values" class="form-control labs last-disabled-labs" disabled></textarea>
+                            </div>
                         </div>
-                        <div class="form-group input-space">
-                            <label for="lab-result-quick-0">Results of Lab</label>
-                            <input type="text" name="Results of Lab" id="lab-result-quick-0" placeholder="Results of Lab" class="form-control labs disabled-labs" disabled>
-                        </div>
-                        <div class="form-group input-space">
-                            <label for="lab-statement-quick-0">Qualitative Statement of Lab</label>
-                            <textarea name="Statement" id="lab-statement-quick-0" placeholder="Statement/interpretation of lab values" class="form-control labs last-disabled-labs" disabled></textarea>
-                        </div>
+                        <button class="add-labs btn btn-primary" id="quick-add-labs" type="button">+</button>
+                        <button class="remove-labs btn btn-primary" id="quick-remove-labs" disabled type="button">-</button>
                     </div>
-                    <button class="add-labs btn btn-primary" id="quick-add-labs" type="button">+</button>
-                    <button class="remove-labs btn btn-primary" id="quick-remove-labs" disabled type="button">-</button>
+
                 </div>
                 <hr>
                 <h2>Team</h2>

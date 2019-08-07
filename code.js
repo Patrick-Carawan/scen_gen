@@ -165,6 +165,10 @@ $(document).ready(function () {
         $("#preview").html(makeCustomString().replace(/\\r\\n/g, "<br/>"));
     });
 
+    $("#quick-container").on("keyup", "input,textarea", function () {
+        $("#preview").html(makeQuickString());
+    })
+
     $(document).on("keyup", "#quick-modal-input", function () {
         $("#quick-modal-proceed").prop("disabled", false);
         $("#quick-modal-proceed").removeClass("btn-secondary").addClass("btn-primary");
@@ -537,7 +541,7 @@ $(document).ready(function () {
             );
         });
     });
-    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 'med2':'st2':'dose2':'route2':'timing2':'selection2':'a' 21 'transgender male' 'lab':'val':'unit' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'pi':'phys info' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
+    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 'med2':'st2':'dose2':'route2':'timing2':'selection2':'a' 21 'transgender male' 'lab':'val':'unit':'statement 1' 'lab2':'val2':'unit2' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
     $("#quick-modal-proceed").prop("disabled", false); // Debugging
     $("#quick-modal-proceed").click(); // Debugging
     $("#quick-tab").click(); // Debugging
@@ -581,17 +585,16 @@ function makeCustomString() { // Makes preview string from inputs using helper f
     return demographics + context + history + medicationsOnPresentation + medsChanged + medsAfter + providerInfo + labInfo + patientStatus + socialContext + healthcareTeam + patientBehaviors + caseAssignment;
 }
 
-function makeQuickString(_arr) { // Makes preview string from quick input
+function makeQuickString() { // Makes preview string from quick input
     var demographics = cleanQuickDemographics($("#quick-demographics input").serializeArray());
     var context = cleanQuickContext($("#quick-context textarea").serializeArray());
     var history = cleanQuickHistory($("#quick-history textarea").serializeArray());
     var medications = cleanQuickMeds($("#meds-quick .med-inputs").serializeArray());
-    var providerInfo = cleanQuickProviderInfo($("#provider-info-quick > textarea").serializeArray());
-    var labInfo = cleanQuickLabInfo($("#provider-info-quick .labs").serializeArray());
+    var providerInfo = cleanQuickProviderInfo($("#provider-info-quick > textarea,#quick-lab-holder input,#quick-lab-holder textarea").serializeArray());
     var healthcareTeam = cleanQuickHealthcareTeam($("#quick-healthcare-team input, #quick-healthcare-team textarea").serializeArray());
-    var patientBehaviors = cleanQuickSelfHealth($("#quick-self-health").val());
-    var caseAssignment = cleanQuickTask($("#quick-task").val());
-    return demographics + context + history + medications;
+    var patientBehaviors = cleanQuickSelfHealth($("#quick-self-health").serializeArray());
+    var caseAssignment = cleanQuickTask($("#quick-task").serializeArray());
+    return demographics + context + history + medications + providerInfo + healthcareTeam + patientBehaviors + caseAssignment;
 }
 
 function cleanQuickDemographics(_formInput) {
@@ -677,13 +680,13 @@ function cleanQuickMeds(_formInput) {
                     if (medParm.has(dose)) {
                         if (medParm.has(route)) {
                             if (medParm.has(timing)) {
-                                return "Patient " + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + " " + medParm.get(timing) + "\r\n";
+                                return "Patient " + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + " " + medParm.get(timing) + ".\r\n";
                             } else {
                                 return "Patient " + baString + "on" + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + ". " + medParm.get(criteria) + "\r\n";
                             }
                         } else {
                             return "Patient "
-                            baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + ".\r\n";
+                            baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
                         }
                     } else {
                         return "Patient" + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " " + medParm.get(route) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
@@ -867,23 +870,40 @@ function cleanQuickMeds(_formInput) {
 }
 
 function cleanQuickProviderInfo(_formInput) {
-
-}
-
-function cleanQuickLabInfo(_formInput) {
+    var returnString = "";
+    if (_formInput[0]["value"]) { // Add physical info to return string if present
+        returnString += _formInput[0]["value"] + "\r\n";
+    }
+    if (_formInput[1]["value"]) {
+        for (var i = 1; i < _formInput.length; i++) { // Loop through labs and add them if present
+            if (_formInput[i]["name"] == "Statement" && _formInput[i]["value"]) {
+                returnString += _formInput[i]["value"] + "\r\n";
+            } else if (_formInput[i]["name"] == "Type/Name of Lab") {
+                returnString += _formInput[i]["value"] + " came back with value of ";
+            } else if (_formInput[i]["name"] == "Results of Lab") {
+                returnString += _formInput[i]["value"] + ". ";
+            }
+        }
+    }
+    return returnString;
 
 }
 
 function cleanQuickHealthcareTeam(_formInput) {
-
+    debugger;
+    var returnString = "";
+    returnString += (_formInput[0]["value"] ? _formInput[0]["value"] + "\r\n" : "");
+    returnString += (_formInput[1]["value"] ? _formInput[1]["value"] + "\r\n" : "");;
+    return returnString;
 }
 
 function cleanQuickSelfHealth(_formInput) {
-
+    debugger;
+    return (_formInput[0]["value"] ? _formInput[0]["value"] + "\r\n" : "");
 }
 
 function cleanQuickTask(_formInput) {
-
+    return _formInput[0]["value"];
 }
 
 function cleanCustomDemographics(_formInput) {

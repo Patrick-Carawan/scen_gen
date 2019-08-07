@@ -66,10 +66,10 @@
                 //print_r($match);
                 //echo '<script>console.log('.$match.')</script>';
                 $split_match4 = preg_split("/(?::)(?=(?:(?:'[^']*')|(?:'[^']*':'[^']*')|'[^']*':'[^']*':'[^']*')(?:$| ))/", $match);
-                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Name"] = $split_match4[0];
-                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Value"] = $split_match4[1];
-                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Units"] = $split_match4[2];
-                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Statement"] = $split_match4[3];
+                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Name"] = str_replace("'", '', $split_match4[0]);
+                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Value"] = str_replace("'", '', $split_match4[1]);
+                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Units"] = str_replace("'", '', $split_match4[2]);
+                $GLOBALS["returnArray"]["Labs"][$GLOBALS["match_count"]]["Lab Statement"] = str_replace("'", '', $split_match4[3]);
                 $GLOBALS["match_count"] += 1;
             }
         } else if (preg_match("/^'[^']*':'[^']*':'[^']*':'[^']*':'[^']*':'[^']*':'[^']*'$/U", $keyword)) {
