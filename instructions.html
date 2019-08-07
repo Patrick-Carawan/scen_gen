@@ -52,20 +52,20 @@
             Medications should be stylized "'MedName':'MedStrength':'MedDoseage':'MedRoute':'MedFrequency':'SelectionCriteria':'BeforeOrAfterVisit'.
             <br>
             <br>
-            Any irrelevant fields may be left blank for medications (only the name of the medication is required). Case construction works best when the 'MedRoute' parameter is written adverbially, such as "orally", "subcutaneously", or "intravenously". The 'BeforeOrAfterVisit' parameter indicates whether the patient was taking the medication before the visit or will be taking it after the visit. Leave blank if they were taking it before and will continue taking it after the visit. The following examples are all valid.
+            Any irrelevant fields may be left blank for medications (only the name of the medication is required). Case construction works best when the 'MedRoute' parameter is written adverbially, such as "orally", "subcutaneously", or "intravenously". The 'BeforeOrAfterVisit' parameter indicates whether the patient was taking the medication before the visit or will be taking it after the visit. Leave blank if they were taking it before and will continue taking it after the visit. The 'SelectionCriteria' parameter needs to be in complete sentences. For the 'MedFrequency' parameter, complete the phrase "Patient takes...". In situations where a patient may be taking different doses of a medication (for example, one dose in the morning and a different dose at night) you may enter them as two separate medications or, alternatively, leave the dose parameter blank and specify the more complex regimen in the 'MedFrequency' parameter. The following examples are all valid.
             <br>
             <br>
-            'Methylphenidate':'18 mg ER':'18 mg':'oral':'Take 1 in the morning':'Switched to ER as patient says they are too antsy in the morning':'after'
+            'Methylphenidate':'18 mg ER':'18 mg':'orally':'1 pill in the morning':'Switched to ER as patient says they are too antsy in the morning.':'after'
             <br>
             <br>
-            'Clonazepam':'2 mg':'2 mg':'':'Take half a tablet in the morning, and half at night':'':''
+            'Clonazepam':'2 mg':'':'':'half a tablet in the morning, and half at night':'':''
             <br>
             <br>
             'Fluvoxamine':'200 mg':'100 mg':'':'':'after'
             <br>
             <br>
             <hr>
-            Other Parameters (Do Not Include Double Quotes):
+            Other Parameters (These Parameters Need To Be Complete Sentences. Do Not Include Double Quotes):
             <br>
             <br>
             Chief Complaint / Reason For Visit: "'c':'Enter Info Here'"

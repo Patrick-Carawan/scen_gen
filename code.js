@@ -623,7 +623,7 @@ function cleanQuickDemographics(_formInput) {
 }
 
 function cleanQuickContext(_formInput) {
-    return _formInput[0]["value"] + " " + _formInput[0]["value"];
+    return _formInput[0]["value"] + "\r\n" + _formInput[1]["value"] + "\r\n";
 }
 
 function cleanQuickHistory(_formInput) {
@@ -633,48 +633,237 @@ function cleanQuickHistory(_formInput) {
 function cleanQuickMeds(_formInput) {
     var formInput = [];
     var mapHolder = new Map();
+    var medParms = 0;
     var medCount = 0;
+    var name = "Medication Name";
+    var strength = "Medication Strength";
+    var dose = "Medication Dose";
+    var timing = "Medication Timing/Frequency";
+    var route = "Medication Route";
+    var criteria = "Selection Criteria";
     for (var parameter in _formInput) { // Separates meds into their own array elements
-        if (parameter != 0 && _formInput[parameter]["name"] == "Medication Name") {
-            for (var i = medCount; i < parameter; i++) {
+        if (parameter != 0 && _formInput[parameter]["name"] == name) {
+            for (var i = medParms; i < parameter; i++) {
                 mapHolder.set(_formInput[i]["name"], _formInput[i]["value"]); // Put all parameters for each medication in their own map.
             }
-            formInput.push(mapHolder); // Then add it to formInput
-            medCount = parameter;
+            formInput[medCount] = new Map(mapHolder); // Then add a deep copy to formInput
+            medCount++;
+            medParms = parameter;
         }
     }
 
     mapHolder.clear();
 
-    for (var i = medCount; i < _formInput.length; i++) { // add the final medication to formInput.
+    for (var i = medParms; i < _formInput.length; i++) { // add the final medication to mapHolder.
         mapHolder.set(_formInput[i]["name"], _formInput[i]["value"]);
     }
 
-    formInput.push(mapHolder);
-
+    formInput[medCount] = new Map(mapHolder); // Then add it to formInput
+    var returnString = "";
     for (var med in formInput) {
-        debugger;
-        console.log(formInput[med].get("Medication Strength"));
-        if (formInput[med].size == 7) {
-            debugger;
-            return "Patient " + (formInput[med].get("Meds Radio " + med.toString()) == "Before" ? "was" : "is now") + " on " + formInput[med].get("Medication Name") + " " + formInput[med].get("Medication Strength") + " taking " + formInput[med].get("Medication Dose") + " " + formInput[med].get("Medication Route") + " " + formInput[med].get("Medication Timing/Frequency") + ". " + formInput[med].get("Selection Criteria");
+        var medParm = formInput[med];
+        var ba = "Meds Radio " + med.toString();
+        if (medParm.has(ba)) { // Determines the appropriate tense based on before/after radio button
+            var baString = (medParm.get(ba) == "Before" ? "was" : "is now");
+        } else {
+            var baString = "is";
         }
-        if (formInput.length == 6) {
 
-        }
-        if (formInput.length == 5) {
+        if (medParm.size == 7) {
+            returnString += "Patient " + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
+        } else if (medParm.length == 6) { // 5 parameters other than name supplied
+            if (medParm.has(ba)) {
+                if (medParm.has(strength)) {
+                    if (medParm.has(dose)) {
+                        if (medParm.has(route)) {
+                            if (medParm.has(timing)) {
+                                return "Patient " + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + " " + medParm.get(timing) + "\r\n";
+                            } else {
+                                return "Patient " + baString + "on" + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + ". " + medParm.get(criteria) + "\r\n";
+                            }
+                        } else {
+                            return "Patient "
+                            baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + ".\r\n";
+                        }
+                    } else {
+                        return "Patient" + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " " + medParm.get(route) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
+                    }
+                } else { // Dose Route Timing Criteria Radio
+                    return "Patient " + baString + " taking " + medParm.get(name) + " " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
+                }
+            } else { // Strength Dose Route Timing Criteria
+                return "Patient is on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
+            }
 
-        }
-        if (formInput.length == 4) {
-
-        }
-        if (formInput.length == 3) {
-
-        }
-        if (formInput.length == 2) {
-
+        } else if (medParm.length == 5) { // 4 parameters other than name supplied
+            if (medParm.has(strength)) {
+                if (medParm.has(dose)) {
+                    if (medParm.has(route)) {
+                        if (medParm.has(timing)) { // Strength Dose Route Timing
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(route)} ${medParm.get(timing)}.\r\n`;
+                        } else if (medParm.has(criteria)) { // Strength Dose Route SelectionCrit
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                        } else { // Strength Dose Route B/A
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(route)}.\r\n`;
+                        }
+                    } else if (medParm.has(timing)) {
+                        if (medParm.has(criteria)) { // Strength Dose Timing SelecionCrit
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                        } else { // Strength Dose Timing B/A
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(timing)}.\r\n`;
+                        }
+                    } else { // Strength Dose SelectionCrit B/A
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)}. ${medParm.get(criteria)}\r\n`;
+                    }
+                } else if (medParm.has(route)) {
+                    if (medParm.has(timing)) {
+                        if (medParm.has(criteria)) { // Strength Route Timing Criteria
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(route)} ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                        } else { // Strength Route Timing B/A
+                            return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(route)} ${medParm.get(timing)}.\r\n`;
+                        }
+                    } else { // Strength Route Criteria B/A
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taken ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                    }
+                } else { // Strength Timing Criteria B/A
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taken ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                }
+            } else if (medParm.has(dose)) {
+                if (medParm.has(route)) {
+                    if (medParm.has(timing)) {
+                        if (medParm.has(criteria)) { // Dose Route Timing Criteria
+                            return `Patient ${baString} on ${medParm.get(name)} taking ${medParm.get(dose)} ${medParm.get(route)} ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                        } else { //  Dose Route Timing B/A
+                            return `Patient ${baString} on ${medParm.get(name)} taking ${medParm.get(dose)} ${medParm.get(route)} ${medParm.get(timing)}.\r\n`;
+                        }
+                    } else { // Dose Route Criteria B/A
+                        return `Patient ${baString} on ${medParm.get(name)} taking ${medParm.get(dose)} ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                    }
+                } else { // Dose Timing Criteria B/A
+                    return `Patient ${baString} on ${medParm.get(name)} taking ${medParm.get(dose)} ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                }
+            } else { // Route Timing Criteria B/A
+                return `Patient ${baString} on ${medParm.get(name)} taken ${medParm.get(route)} ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+            }
+        } else if (medParm.length == 4) { // 3 parameters other than name supplied
+            if (medParm.has(strength)) {
+                if (medParm.has(dose)) {
+                    if (medParm.has(route)) { // Strength Dose Route
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(route)}.\r\n`;
+                    } else if (medParm.has(timing)) { // Strength Dose Timing
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)} ${medParm.get(timing)}.\r\n`;
+                    } else if (medParm.has(criteria)) { // Strength Dose Criteria
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)}. ${medParm.get(criteria)}\r\n`;
+                    } else { // Strength Dose B/A
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)} taking ${medParm.get(dose)}.}\r\n`;
+                    }
+                } else if (medParm.has(route)) {
+                    if (medParm.has(timing)) { // Strength Route Timing
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(route)} ${medParm.get(timing)}.\r\n`;
+                    } else if (medParm.has(criteria)) { // Strength Route Criteria
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                    } else { // Strength Route B/A
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(route)}.\r\n`;
+                    }
+                } else if (medParm.has(timing)) {
+                    if (medParm.has(criteria)) { // Strength Timing Criteria
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                    } else { // Strength Timing B/A
+                        return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(timing)}.\r\n`;
+                    }
+                } else { // Strength Criteria B/A
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}. ${medParm.get(criteria)}\r\n`;
+                }
+            } else if (medParm.has(dose)) {
+                if (medParm.has(route)) {
+                    if (medParm.has(timing)) { // Dose Route Timing
+                        return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)} ${medParm.get(route)}, ${medParm.get(timing)}.\r\n`;
+                    } else if (medParm.has(criteria)) { // Dose Route Criteria
+                        return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)} ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                    } else { // Dose Route B/A
+                        return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)} ${medParm.get(route)}.\r\n`;
+                    }
+                } else if (medParm.has(timing)) {
+                    if (medParm.has(criteria)) { // Dose Timing Criteria
+                        return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}, ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                    } else { // Dose Timing B/A
+                        return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}, ${medParm.get(timing)}.\r\n`;
+                    }
+                } else { // Dose Criteria B/A
+                    return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}. ${medParm.get(criteria)}\r\n`;
+                }
+            } else if (medParm.has(route)) {
+                if (medParm.has(timing)) {
+                    if (medParm.has(criteria)) { // Route Timing Criteria
+                        return `Patient ${baString} on ${medParm.get(name)}, taken ${medParm.get(route)}, ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+                    } else { // Route Timing B/A
+                        return `Patient ${baString} on ${medParm.get(name)}, taken ${medParm.get(route)}, ${medParm.get(timing)}.\r\n`;
+                    }
+                } else { // Route Criteria B/A
+                    return `Patient ${baString} on ${medParm.get(name)}, taken ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                }
+            } else { // Timing Criteria B/A
+                return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(timing)}. ${medParm.get(criteria)}\r\n`;
+            }
+        } else if (medParm.length == 3) { // 2 parameters other than name supplied
+            if (medParm.has(strength)) {
+                if (medParm.has(dose)) { // Strength Dose
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taking ${medParm.get(dose)}.\r\n`;
+                } else if (medParm.has(route)) { // Strength Route
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taken ${medParm.get(route)}.\r\n`;
+                } else if (medParm.has(timing)) { // Strength Timing
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taking ${medParm.get(timing)}.\r\n`;
+                } else if (medParm.has(criteria)) { // Strength Criteria
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}. ${medParm.get(criteria)}\r\n`;
+                } else { // Strength B/A
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}.\r\n`;
+                }
+            } else if (medParm.has(dose)) {
+                if (medParm.has(route)) { // Dose Route
+                    return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)} ${medParm.get(route)}.\r\n`;
+                } else if (medParm.has(timing)) { // Dose Timing
+                    return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}, ${medParm.get(timing)}.\r\n`;
+                } else if (medParm.has(criteria)) { // Dose Criteria
+                    return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}. ${medParm.get(criteria)}\r\n`;
+                } else { // Dose B/A
+                    return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}.\r\n`;
+                }
+            } else if (medParm.has(route)) {
+                if (medParm.has(timing)) { // Route Timing
+                    return `Patient ${baString} on ${medParm.get(name)} taken ${medParm.get(route)}, taking ${medParm.get(timing)}.\r\n`;
+                } else if (medParm.has(criteria)) { // Route Criteria
+                    return `Patient ${baString} on ${medParm.get(name)} taken ${medParm.get(route)}. ${medParm.get(criteria)}\r\n`;
+                } else { // Route B/A
+                    return `Patient ${baString} on ${medParm.get(name)}, taken ${medParm.get(route)}.\r\n`;
+                }
+            } else if (medParm.has(timing)) {
+                if (medParm.has(criteria)) { // Timing Criteria
+                    return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}, taking ${medParm.get(timing)}.\r\n`;
+                } else { // Timing B/A
+                    return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(timing)}.\r\n`;
+                }
+            } else { // Criteria B/A
+                return `Patient ${baString} on ${medParm.get(name)}. ${medParm.get(criteria)}\r\n`;
+            }
+        } else if (medParm.length == 2) { // 1 parameter other than name supplied
+            if (medParm.has(strength)) {
+                return `Patient ${baString} on ${medParm.get(name)} ${medParm.get(strength)}.\r\n`;
+            } else if (medParm.has(dose)) {
+                return `Patient ${baString} on ${medParm.get(name)}, taking ${medParm.get(dose)}.\r\n`;
+            } else if (medParm.has(route)) {
+                return `Patient ${baString} on ${medParm.get(name)} taken ${medParm.get(route)}.\r\n`;
+            } else if (medParm.has(timing)) {
+                return `Patient ${baString} on ${medParm.get(name)} taking ${medParm.get(timing)}.\r\n`;
+            } else if (medParm.has(criteria)) {
+                return `Patient ${baString} on ${medParm.get(name)}. ${medParm.get(criteria)}\r\n`;
+            } else {
+                return `Patient ${baString} on ${medParm.get(name)}.\r\n`;
+            }
+        } else {
+            returnString += "Patient is taking " + medParm.get(name) + ".\r\n";
         }
     }
+    return returnString;
 }
 
 function cleanQuickProviderInfo(_formInput) {
