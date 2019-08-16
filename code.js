@@ -544,7 +544,7 @@ $(document).ready(function () {
 //    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 'med2':'st2':'dose2':'route2':'timing2':'selection2':'a' 21 'transgender male' 'lab':'val':'unit':'statement 1' 'lab2':'val2':'unit2' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
 //    $("#quick-modal-proceed").prop("disabled", false); // Debugging
 //    $("#quick-modal-proceed").click(); // Debugging
-//    $("#quick-tab").click(); // Debugging
+//    $("#quick-tab").click(); // Debugginghtml
 
 });
 
