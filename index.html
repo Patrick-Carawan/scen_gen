@@ -14,12 +14,17 @@
 
 <body>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div id="quick-fill-info-holder" style="display: none;">
+        <div id="custom-tab-holder"></div>
+        <div id="quick-tab-holder"></div>
+    </div>
+
+    <div class="modal fade" id="nonempty-modal" tabindex="-1" role="dialog" aria-labelledby="nonempty-modal-label" aria-hidden="true">
         <!-- Modal for switching or refreshing when you have nonempty vals -->
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">You have populated fields!</h5>
+                    <h5 class="modal-title" id="nonempty-modal-label">You have populated fields!</h5>
                 </div>
                 <div class="modal-body">
                     <p>If you leave this tab you will lose any data you've entered into the current form, proceed?</p>
@@ -32,6 +37,27 @@
         </div>
     </div>
 
+    <div class="modal fade" id="quick-fill-modal" tabindex="-1" role="dialog" aria-labelledby="quick-fill-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quick-fill-modal-label">Quick Fill</h5>
+                </div>
+                <div class="form-group" id="quick-fill-patient-div">
+                    <label for="quick-fill-patient-select">Patients</label>
+                    <select onChange=quickFillSelectCheck() class="form-control" id="quick-fill-patient-select">
+                        <option>None</option>
+                    </select>
+                    <div id="quick-fill-preview"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="quick-fill-modal-back" class="btn btn-secondary modal-return" data-dismiss="modal">Back</button>
+                    <button type="button" class="btn btn-primary" id="quick-fill-modal-proceed" disabled="true">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade no-close" id="quick-modal" tabindex="-1" role="dialog" aria-labelledby="quick-modal-label" aria-hidden="true">
         <!--Modal for switching to quick tab -->
         <div class="modal-dialog" role="document">
@@ -39,6 +65,12 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="quick-modal-label">Enter Keywords</h5>
 
+                </div>
+                <div class="form-group" id="quick-tab-patient-div">
+                    <label for="quick-tab-patient-select">Patients</label>
+                    <select onChange=quickTabPatientFill() class="form-control" id="quick-tab-patient-select">
+                        <option>None</option>
+                    </select>
                 </div>
                 <div class="modal-body form-group input-space">
                     <p id="quick-modal-text">Enter keywords relating to the case. Click <a href="instructions.html" target="_blank">here</a> for instructions.</p>
@@ -86,7 +118,7 @@
             <h2>Leave any irrelevant fields blank</h2>
             <hr>
             <hr>
-            <form onsubmit="downloadQuick()" action="" method="post">
+            <form id="quick-form" onsubmit="downloadQuick()" action="" method="post">
                 <h2>Demographics</h2>
                 <div id="quick-demographics">
                     <div id="gender-quick-div" class="form-group input-space">
@@ -108,11 +140,11 @@
                     </div>
                     <div class="form-group">
                         <label for="quick-age">Age</label>
-                        <input type="text" name="Age" id="quick-age" placeholder="Age" class="form-control">
+                        <input type="text" name="age" id="quick-age" placeholder="Age" class="form-control">
                     </div>
                     <div class="form-group">
                         <label for="quick-race">Race/Ethnicity</label>
-                        <input type="text" name="Race" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
+                        <input type="text" name="ethnicity" id="quick-race" class="form-control" placeholder="Race/Ethnicity">
                     </div>
                 </div>
 
@@ -234,7 +266,7 @@
             <hr>
             <hr>
 
-            <form onsubmit="downloadCustom()" action="" method="post" autocomplete="off">
+            <form id="custom-form" onsubmit="downloadCustom()" action="" method="post" autocomplete="off">
                 <input type="text" autocomplete="false" hidden>
                 <div class="accordion" id="dialogFormAccordion">
 
@@ -317,15 +349,15 @@
                                 <div id="history">
                                     <div class="form-group">
                                         <label for="pmh">Past Medical History / Disease States</label>
-                                        <textarea name="PMH" id="pmh" rows="4" placeholder="Write out the full PMH as you want it to appear in the completed case." class="form-control"></textarea>
+                                        <textarea name="pmh" id="pmh" rows="4" placeholder="Write out the full PMH as you want it to appear in the completed case." class="form-control"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="family-history">Family History</label>
-                                        <textarea name="Family History" rows="4" id="family-history" placeholder="Write out the full family history as you want it to appear in the completed case." class="form-control"></textarea>
+                                        <textarea name="family-history" rows="4" id="family-history" placeholder="Write out the full family history as you want it to appear in the completed case." class="form-control"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="surgical-history">Surgical History</label>
-                                        <textarea name="Surgical History" rows="4" id="surgical-history" placeholder="Write out the full surgical history as you want it to appear in the completed case." class="form-control"></textarea>
+                                        <textarea name="surgical-history" rows="4" id="surgical-history" placeholder="Write out the full surgical history as you want it to appear in the completed case." class="form-control"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="immunizations">Immunizations</label>
@@ -600,8 +632,10 @@
 
 
                 <button type="submit" id="submit-button" class="btn btn-primary input-space" style="position: fixed; bottom: 0; right: 0">Download Case</button>
+
             </form>
         </div>
+        <button type="button" id="quick-fill" class="btn btn-primary input-space" style="position: fixed; top: 0; right: 0; display: block">Quick Fill</button>
     </div>
     <div id="preview-box">
         <h4>Preview</h4>

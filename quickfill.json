@@ -1,0 +1,25 @@
+{
+    "Patients": {
+        "Jim": {
+            "Custom": {
+                "name": "Jim",
+                "age": 21,
+                "ethnicity": "white",
+                "sex": "male",
+                "patient-movement": "",
+                "setting": "",
+                "chief-complaint": "",
+                "hpi": "",
+                "pmh": "",
+                "family-history": "",
+                "surgical-history": "",
+                "immunizations": "",
+                "allergies": "None"
+
+            },
+            "Quick": "white male 21",
+            "Preview": "Jim is a 21 year old healthy white male."
+
+        }
+    }
+}

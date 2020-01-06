@@ -9,15 +9,27 @@ $(document).ready(function () {
     var mostRecentLabStatementNum = 0;
     var mostRecentTab = "#custom-container";
     var goingToQuickTab = false;
-    // var testTags = ["Jim", "Bob", "Pat", "Tom"];
     var request;
 
+    // Retrieves template patients from quickfill.json
+    $.getJSON("quickfill.json", function (json) {
+        let patients = json["Patients"];
+        $.each(patients, function (index, patient) {
+            // For each template patient,
+            // add their name to the form select as an <option>
+            let _name = index;
+            $("#quick-fill-patient-select, #quick-tab-patient-select").append(`<option>${_name}</option>`);
+        });
+    });
 
+    // Styling for autocomplete
     $(".ui-autocomplete").css("font-size", "2em");
     $(".ui-autocomplete").css("background", "2em");
 
+    // Needed for autocomplete to work correctly
     $("input").prop("autocomplete", "new-password");
 
+    // Function that tells autocomplete where to get suggestions
     $(":text").autocomplete({
         source: function (request, response) {
             var selfID = $(this.element[0]).prop("id");
@@ -39,17 +51,31 @@ $(document).ready(function () {
         }
     });
 
+    // Enables "Other" field for Gender
     $("#otherRadio").click(function () {
         $("#otherGender").prop("disabled", false);
     });
 
+    // Disables "Other" field for Gender
     $(".disable-other").click(function () {
         $("#otherGender").prop("disabled", true);
     });
 
+    $("#quick-fill-modal-proceed").click(function () {
+        if ($("#custom-container").css("display") === "block") {
+            customTabQuickFill();
+        } else if ($("#quick-container").css("display") === "block") {
+            quickTabQuickFill();
+        }
+    })
+
+    $("#quick-fill-modal-back").click(function () {
+        $("#quick-fill-patient-select").val("None");
+        $("#quick-fill-preview").text('');
+    })
+
     $(".modal-return").click(function () {
         var goBackTab = mostRecentTab.split("-")[0] + "-tab";
-        //debugger; // Just checking to see if this ever gets hit
         $(mostRecentTab).siblings().css("display", "none");
         $(mostRecentTab).css("display", "block");
         $(goBackTab).parent().siblings().removeClass("active");
@@ -57,12 +83,22 @@ $(document).ready(function () {
         $("#quick-modal-input").val('');
         $("#quick-modal-proceed").prop("disabled", true);
         $("#quick-modal-proceed").removeClass("btn-primary").addClass("btn-secondary");
+        $("#quick-fill").css("display", "block");
     });
+
+    // Function to bring up the quick fill modal
+    $("#quick-fill").click(function () {
+        $("#quick-fill-modal").modal({
+            "backdrop": "static",
+            "show": true,
+            "keyboard": false
+        });
+    })
 
     $("#modal-proceed").click(function () {
         $("input").val('');
         $("[type='radio']").prop("checked", false);
-        $("#exampleModal").modal("hide");
+        $("#nonempty-modal").modal("hide");
         $("#preview").html('');
         if (goingToQuickTab) {
             $("#quick-modal").modal({
@@ -72,7 +108,6 @@ $(document).ready(function () {
             });
         }
     });
-
 
 
 
@@ -87,7 +122,7 @@ $(document).ready(function () {
                 text_value += $(this).val();
             });
             if (text_value != '') {
-                $("#exampleModal").modal({
+                $("#nonempty-modal").modal({
                     "backdrop": "static",
                     "show": true,
                     "keyboard": false
@@ -108,8 +143,6 @@ $(document).ready(function () {
 
     });
 
-    //$("#quick-tab").click(); // REMOVE AFTER DEBUGGING DONE
-
 
     $("#template-tab").click(function () {
         goingToQuickTab = false;
@@ -120,7 +153,7 @@ $(document).ready(function () {
             $(":text, textarea").each(function () {
                 var text_value = $(this).val();
                 if (text_value != '') {
-                    $("#exampleModal").modal({
+                    $("#nonempty-modal").modal({
                         "backdrop": "static",
                         "show": true,
                         "keyboard": false
@@ -145,7 +178,7 @@ $(document).ready(function () {
             $(":text, textarea").each(function () {
                 var text_value = $(this).val();
                 if (text_value != '') {
-                    $("#exampleModal").modal({
+                    $("#nonempty-modal").modal({
                         "backdrop": "static",
                         "show": true,
                         "keyboard": false
@@ -409,7 +442,7 @@ $(document).ready(function () {
             var jsonResponse = JSON.parse(response); // Parse response into array
             for (var key in jsonResponse) { // Go through each value and find where it belongs
                 console.log("Key: " + key + ", Val: " + jsonResponse[key]);
-                if (key == "Age") {
+                if (key == "age") {
                     $("#quick-age").val(jsonResponse[key])
                 } else if (key == "Sex") {
                     if (jsonResponse[key][0].toLowerCase() == 'm') {
@@ -541,13 +574,70 @@ $(document).ready(function () {
             );
         });
     });
-//    $("#quick-modal-input").val("'t':'task' white 'med':'st':'dose':'route':'timing':'selection':'b' 'med2':'st2':'dose2':'route2':'timing2':'selection2':'a' 21 'transgender male' 'lab':'val':'unit':'statement 1' 'lab2':'val2':'unit2' 'c':'cc' 'f':'fh' 'h':'hpi' 'pm':'pmh' 'r':'role' 'sh':'self health' 's':'social history' 'w':'working with'"); // Debugging
-//    $("#quick-modal-proceed").prop("disabled", false); // Debugging
-//    $("#quick-modal-proceed").click(); // Debugging
-//    $("#quick-tab").click(); // Debugginghtml
 
 });
 
+
+
+function quickFillSelectCheck() {
+    if ($("#quick-fill-patient-select").val() != "None") {
+        $("#quick-fill-modal-proceed").prop("disabled", false);
+        $.getJSON("quickfill.json", function (json) {
+            let patientInfo = json["Patients"][$("#quick-fill-patient-select").val()];
+            $.each(patientInfo["Custom"], function (index, elt) {
+                $("#custom-tab-holder").append(index + ": " + elt + ",<br>");
+            });
+            $("#quick-fill-preview").text(patientInfo["Preview"]);
+            $("#quick-tab-holder").text([patientInfo["Quick"]]);
+        })
+    } else {
+        $("#quick-fill-modal-proceed").prop("disabled", true);
+        $("#quick-fill-preview").text("");
+    }
+}
+
+// Quick fill function for the custom tab
+function customTabQuickFill() {
+    let _form = $("#custom-form").serializeArray();
+    let emptyFields = [];
+    let patientInfo = $("#custom-tab-holder").text().split(',');
+    _form.forEach(function (elt) {
+        if (!elt["value"]) {
+            emptyFields.push(elt["name"]);
+            patientInfo.forEach(function (_info) {
+                let splitInfo = _info.split(": ");
+                if (splitInfo[0] === elt["name"]) {
+                    $(`#custom-form input[name=${elt["name"]}]`).val(splitInfo[1]);
+                }
+            });
+        }
+    });
+    $("#quick-fill-modal").modal("hide");
+    $("#quick-fill-preview").text('');
+    $("#quick-fill-patient-select").val("None");
+}
+
+function quickTabQuickFill() {
+    let patientInfo = $("#quick-tab-holder").text();
+    $("#quick-modal-input").val(patientInfo);
+    $("quick-modal-proceed").click();
+    $("#quick-fill-modal").modal("hide");
+    $("#quick-fill-preview").text('');
+    $("#quick-fill-patient-select").val("None");
+}
+
+// Fills quick tab text box with selected patient info
+function quickTabPatientFill() {
+    if ($("#quick-tab-patient-select").val() != "None") {
+        $.getJSON("quickfill.json", function (json) {
+            let patientInfo = json["Patients"][$("#quick-tab-patient-select").val()]["Quick"];
+            console.log(patientInfo);
+            $("#quick-modal-input").val(patientInfo);
+        })
+        $("#quick-modal-proceed").prop("disabled", false);
+    }
+
+}
 
 function downloadCustom() {
     var _arr = $("form").serializeArray();
@@ -607,7 +697,7 @@ function cleanQuickDemographics(_formInput) {
     }
     if (formInput.length == 2) {
         if (formInput[0]["name"] == "Gender" || formInput["name"] == "inlineRadioOptions") {
-            if (formInput[1]["name"] == "Age") {
+            if (formInput[1]["name"] == "age") {
                 return "Your patient is a " + formInput[1]["value"] + " year old " + formInput[0]["value"] + ".\r\n";
             } else {
                 return "Your patient is a " + formInput[1]["value"] + " " + formInput[0]["value"] + ".\r\n";
@@ -618,7 +708,7 @@ function cleanQuickDemographics(_formInput) {
     }
     if (formInput[0]["name"] == "inlineRadioOptions" || formInput[0]["name"] == "Gender") {
         return "Your patient is a " + formInput[0]["value"] + ".\r\n";
-    } else if (formInput[0]["name"] == "Age") {
+    } else if (formInput[0]["name"] == "age") {
         return "Your patient is " + formInput[0]["value"] + " years old.\r\n";
     } else {
         return "Your patient is " + formInput[0]["value"] + ".\r\n";
@@ -685,8 +775,8 @@ function cleanQuickMeds(_formInput) {
                                 return "Patient " + baString + "on" + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(route) + ". " + medParm.get(criteria) + "\r\n";
                             }
                         } else {
-                            return "Patient "
-                            baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
+                            return "Patient " +
+                                baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " taking " + medParm.get(dose) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
                         }
                     } else {
                         return "Patient" + baString + " on " + medParm.get(name) + " " + medParm.get(strength) + " " + medParm.get(route) + " " + medParm.get(timing) + ". " + medParm.get(criteria) + "\r\n";
