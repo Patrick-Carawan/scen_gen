@@ -29,7 +29,7 @@ $(document).ready(function () {
     // Needed for autocomplete to work correctly
     $("input").prop("autocomplete", "new-password");
 
-    // Function that tells autocomplete where to get suggestions
+    // Function that tells autocomplete to get it suggestions from parameters.json
     $(":text").autocomplete({
         source: function (request, response) {
             var selfID = $(this.element[0]).prop("id");
@@ -61,7 +61,9 @@ $(document).ready(function () {
         $("#otherGender").prop("disabled", true);
     });
 
+    // Event handler for proceed button on quick fill modal
     $("#quick-fill-modal-proceed").click(function () {
+        // Individual functions for custom and quick tab.
         if ($("#custom-container").css("display") === "block") {
             customTabQuickFill();
         } else if ($("#quick-container").css("display") === "block") {
@@ -203,8 +205,14 @@ $(document).ready(function () {
     })
 
     $(document).on("keyup", "#quick-modal-input", function () {
-        $("#quick-modal-proceed").prop("disabled", false);
-        $("#quick-modal-proceed").removeClass("btn-secondary").addClass("btn-primary");
+        if ($("#quick-modal-input").val()) {
+            $("#quick-modal-proceed").prop("disabled", false);
+            $("#quick-modal-proceed").removeClass("btn-secondary").addClass("btn-primary");
+        } else {
+            $("#quick-modal-proceed").prop("disabled", true);
+            $("#quick-modal-proceed").removeClass("btn-primary").addClass("btn-secondary");
+        }
+
     });
 
     $("#custom-container,#quick-container").on("keyup", ".med-names", function () {
@@ -437,12 +445,9 @@ $(document).ready(function () {
             formData: $("#quick-modal-input").val() // formData is input
         }, function (response) { // Get back response
             $("#quick-modal-input").val(''); // Reset value of modal input
-            console.log(response);
-            //debugger;
             var jsonResponse = JSON.parse(response); // Parse response into array
             for (var key in jsonResponse) { // Go through each value and find where it belongs
-                console.log("Key: " + key + ", Val: " + jsonResponse[key]);
-                if (key == "age") {
+                if (key == "Age") {
                     $("#quick-age").val(jsonResponse[key])
                 } else if (key == "Sex") {
                     if (jsonResponse[key][0].toLowerCase() == 'm') {
@@ -635,6 +640,7 @@ function quickTabPatientFill() {
             $("#quick-modal-input").val(patientInfo);
         })
         $("#quick-modal-proceed").prop("disabled", false);
+        $("#quick-modal-proceed").removeClass("btn-secondary").addClass("btn-primary");
     }
 
 }
