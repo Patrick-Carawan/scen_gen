@@ -71,11 +71,13 @@ $(document).ready(function () {
         }
     })
 
+    // Resets contents of the modal when Back is clicked
     $("#quick-fill-modal-back").click(function () {
         $("#quick-fill-patient-select").val("None");
         $("#quick-fill-preview").text('');
     })
 
+    // Goes back to most recent tab when back is clicked on a modal
     $(".modal-return").click(function () {
         var goBackTab = mostRecentTab.split("-")[0] + "-tab";
         $(mostRecentTab).siblings().css("display", "none");
@@ -97,6 +99,7 @@ $(document).ready(function () {
         });
     })
 
+    // Clears all populated values when Proceed is clicked in the Nonempty Modal
     $("#modal-proceed").click(function () {
         $("input").val('');
         $("[type='radio']").prop("checked", false);
@@ -112,23 +115,28 @@ $(document).ready(function () {
     });
 
 
-
+    // Tries to open the Quick Tab when the Quick Tab button is clicked
     $("#quick-tab").click(function () {
         var text_value = '';
         goingToQuickTab = true;
+        // If we are not already on Quick Tab
         if ($("#quick-container").css("display") === "none") {
+            // Get the value of the current active tab
             mostRecentTab = "#" + $(".container").filter(function () {
                 return $(this).css("display") === "block";
             }).prop("id");
+            // Get the value of every input to check if any are populated.
             $(mostRecentTab + " :text," + mostRecentTab + " textarea").each(function () {
                 text_value += $(this).val();
             });
+            // If there were populated values bring up the Nonempty Modal
             if (text_value != '') {
                 $("#nonempty-modal").modal({
                     "backdrop": "static",
                     "show": true,
                     "keyboard": false
                 });
+                // Otherwise bring up the Quick Modal
             } else {
                 $("#quick-modal").modal({
                     "backdrop": "static",
@@ -136,6 +144,7 @@ $(document).ready(function () {
                     "keyboard": false
                 });
             }
+            // Make Quick Tab visible
             $("#custom-container").css("display", "none");
             $("#template-container").css("display", "none");
             $("#quick-container").css("display", "block");
@@ -146,6 +155,7 @@ $(document).ready(function () {
     });
 
 
+    // Tries to open Template Tab when Template button is clicked
     $("#template-tab").click(function () {
         goingToQuickTab = false;
         if ($("#template-container").css("display") === "none") {
@@ -171,12 +181,16 @@ $(document).ready(function () {
 
     });
 
+    // Tries to open Custom Tab when Custom button is clicked
     $("#custom-tab").click(function () {
         goingToQuickTab = false;
+        // If the Custom Tab is not active
         if ($("#custom-container").css("display") === "none") {
+            // Get the most recent tab
             mostRecentTab = "#" + $(".container").filter(function () {
                 return $(this).css("display") === "block";
             }).prop("id");
+            // Check to see if there are nonempty values and bring up the Nonempty Modal if so.
             $(":text, textarea").each(function () {
                 var text_value = $(this).val();
                 if (text_value != '') {
@@ -187,6 +201,7 @@ $(document).ready(function () {
                     })
                 }
             })
+            // Display and make active the Custom Tab
             $("#quick-container").css("display", "none");
             $("#template-container").css("display", "none");
             $("#custom-container").css("display", "block");
@@ -196,18 +211,23 @@ $(document).ready(function () {
 
     });
 
+    // Uses helper function makeCustomString() to construct the preview for the Custom Tab
     $("#custom-container").on("keyup", "input,textarea", function () {
         $("#preview").html(makeCustomString().replace(/\\r\\n/g, "<br/>"));
     });
 
+    // Uses helper function makeQuickString() to construct the preview for the Quick Tab
     $("#quick-container").on("keyup", "input,textarea", function () {
         $("#preview").html(makeQuickString());
     })
 
+    // Function to enable Proceed button in the Quick Tab Modal
     $(document).on("keyup", "#quick-modal-input", function () {
+        // If the input is nonempty, enable the Proceed button
         if ($("#quick-modal-input").val()) {
             $("#quick-modal-proceed").prop("disabled", false);
             $("#quick-modal-proceed").removeClass("btn-secondary").addClass("btn-primary");
+            // If the input is empty, disable the Proceed button
         } else {
             $("#quick-modal-proceed").prop("disabled", true);
             $("#quick-modal-proceed").removeClass("btn-primary").addClass("btn-secondary");
@@ -215,6 +235,7 @@ $(document).ready(function () {
 
     });
 
+    // Enable other medication inputs once the Medication Name field is populated, disable it when not populated
     $("#custom-container,#quick-container").on("keyup", ".med-names", function () {
         if ($(this).val()) {
             $(this).parent().parent().find(".enable-on-name").attr("disabled", false);
@@ -223,19 +244,21 @@ $(document).ready(function () {
         }
     });
 
+    // Enable Lab Results field once the Lab Name field is populated, disable it when not populated.
     $(document).on("keyup", ".lab-types", function () {
         if ($(this).val()) {
-            $(this).parent().parent().find(".disabled-labs").attr("disabled", false);
+            $(this).parent().parent().find(".lab-results").attr("disabled", false);
         } else {
-            $(this).parent().parent().find(".disabled-labs").attr("disabled", true);
+            $(this).parent().parent().find(".lab-results").attr("disabled", true);
         }
     });
 
-    $(document).on("keyup", ".disabled-labs", function () {
+
+    $(document).on("keyup", ".lab-results", function () {
         if ($(this).val()) {
-            $(this).parent().parent().find(".last-disabled-labs").attr("disabled", false);
+            $(this).parent().parent().find(".lab-statements").attr("disabled", false);
         } else {
-            $(this).parent().parent().find(".last-disabled-labs").attr("disabled", true);
+            $(this).parent().parent().find(".lab-statements").attr("disabled", true);
         }
     });
 
