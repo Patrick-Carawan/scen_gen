@@ -244,7 +244,7 @@ $(document).ready(function () {
         }
     });
 
-    // Enable Lab Results field once the Lab Name field is populated, disable it when not populated.
+    // Enables Lab Results field once the Lab Name field is populated, disables it when not populated.
     $(document).on("keyup", ".lab-types", function () {
         if ($(this).val()) {
             $(this).parent().parent().find(".lab-results").attr("disabled", false);
@@ -253,7 +253,7 @@ $(document).ready(function () {
         }
     });
 
-
+    // Enables Lab Statement field once the Lab Results field is populated, disables it when not populated.
     $(document).on("keyup", ".lab-results", function () {
         if ($(this).val()) {
             $(this).parent().parent().find(".lab-statements").attr("disabled", false);
@@ -263,26 +263,34 @@ $(document).ready(function () {
     });
 
 
-
+    // Removes the last medication info entry and disables the button if there is only one entry left after deletion
     $(".remove-meds").click(function () {
-        console.log("Remove clicked");
-        $(this).parent().find("[id^=med-info-]:last").remove()
+        $(this).parent().find("[id^=med-info-]:last").remove();
         if ($(this).parent().find("[id^=med-info-]").length == 1) {
             $(this).attr("disabled", true);
         }
     });
 
+    // Adds medication info entries
     $(".add-meds").click(function () {
-        console.log("Add clicked");
+        // $div is the current last element in the Medication category (e.g. On Presentation, Added/Changed During Visit, and After Visit) in which the "+" button was clicked. 
         var $div = $(this).parent().find("[id^=med-info-]:last");
+
+        // $allEntries is ALL the elements in the Medication Category in which the "+" button was clicked.
         var $allEntries = $(this).parent().find("[id^=med-info-]");
-        // Read the Number from that DIV's ID (i.e: 3 from "med-info-3")
-        // And increment that number by 1
+
+        // Read the number from $div's ID (e.g.: 3 from "med-info-3") and increment that number by 1
         initNum = parseInt($div.prop("id").match(/\d+/g), 10) + 1;
 
+        // For the Custom Tab, if the ID of the parent element of the button is "meds-on-presentation", "meds-changed", or "meds-after", we know we are working in the Custom Tab.
         if ($(this).parent().attr("id") === "meds-on-presentation" || $(this).parent().attr("id") === "meds-changed" || $(this).parent().attr("id") === "meds-after") {
+            // $medInfo is a clone of $div where the id is incremented by one
             var $medInfo = $div.clone().prop('id', 'med-info-' + initNum);
+
+            // Removes text from cloned element
             $medInfo.find("input").val('');
+
+            // Increments the IDs of the other components of the cloned element and disables appropriate fields.
             $medInfo.find("[id^=med-name-]").attr("id", "med-name-" + initNum);
             $medInfo.find("[for^=med-name-]").attr("for", "med-name-" + initNum);
             $medInfo.find("[id^=med-strength-]").attr({
@@ -310,9 +318,14 @@ $(document).ready(function () {
                 "disabled": true
             });
             $medInfo.find("[for^=med-selection-criteria-]").attr("for", "med-selection-criteria-" + initNum);
+
+            // x is the number of Medications in the current category.
             var x = $allEntries.length;
+
+
             for (i = x; i > initNum; i--) {
                 var $tempEntry = $('#' + $allEntries[i - 1].id).clone();
+                console.log("AAAAAAA");
                 $tempEntry.prop("id", "med-info-" + i);
                 $tempEntry.find("[id^=med-name-]").attr("id", "med-name-" + i);
                 $tempEntry.find("[for^=med-name-]").attr("for", "med-name-" + i);
@@ -329,9 +342,16 @@ $(document).ready(function () {
                 $('#' + $allEntries[i - 1].id).parent().find(".add-meds").before($tempEntry).html(); // Add entry to end of current section
                 $('#' + $allEntries[i - 1].id).remove(); // Remove old one
             }
+            // For Quick Tab 
         } else if ($(this).parent().attr("id") === "meds-quick") {
+
+            // $medInfo is a clone of $div with the ID incremented
             var $medInfo = $div.clone().prop('id', 'med-info-' + initNum + "-quick");
+
+            // Clear the inputs in the cloned element
             $medInfo.find(":text, textarea").val('');
+
+            // Increment the IDs of elements in $medInfo and disable appropriate fields.
             $medInfo.find("[id^=med-name-]").attr("id", "med-name-" + initNum + "-quick");
             $medInfo.find("[for^=med-name-]").attr("for", "med-name-" + initNum + "-quick");
             $medInfo.find("[id^=med-strength-]").attr({
@@ -401,19 +421,36 @@ $(document).ready(function () {
             }
         }
 
+        // Put $medInfo before the "+" button
         $(this).before($medInfo).html();
+
+        // Enable the "-" button
         $(this).parent().find(".remove-meds").attr("disabled", false);
     });
 
+    // Adds lab info entries
     $(".add-labs").click(function () {
+        // $mostRecentLab is the last entry in the Labs section
         var $mostRecentLab = $(this).parent().find("[id^=lab-form-]:last");
+
+        // $mostRecentFormID is the ID of $mostRecentLab
         var $mostRecentFormID = $mostRecentLab.prop("id");
+
+        // mostRecentLabNum is the number in the ID of $mostRecentLab plus one
         mostRecentLabNum = parseInt($mostRecentLab.prop("id").match(/\d+/g), 10) + 1;
-        var $newLab = $mostRecentLab.clone().prop('id', $mostRecentFormID.slice(0, $mostRecentFormID.length - 1) + mostRecentLabNum); //Clone and increment id
+
+        // $newLab is a clone of $mostRecentLab with its ID incremented.
+        var $newLab = $mostRecentLab.clone().prop('id', $mostRecentFormID.slice(0, $mostRecentFormID.length - 1) + mostRecentLabNum);
+
+        // Some variables to  quickly access IDs
         var $labTypeID = $newLab.find("[id^=lab-type-]").prop("id");
         var $labResultID = $newLab.find("[id^=lab-result-]").prop("id");
         var $labStatementID = $newLab.find("[id^=lab-statement-]").prop("id");
+
+        // Reset inputs in $newLab
         $newLab.find("input,textarea").val('');
+
+        // Increment IDs and disable appropriate fields
         $newLab.find("[id^=lab-type-]").attr("id", $labTypeID.slice(0, $labTypeID.length - 1) + mostRecentLabNum);
         $newLab.find("[id^=lab-result-]").attr({
             "id": $labResultID.slice(0, $labResultID.length - 1) + mostRecentLabNum,
@@ -426,6 +463,8 @@ $(document).ready(function () {
         $newLab.find("[for^=lab-type-]").attr("for", $labTypeID.slice(0, $labTypeID.length - 1) + mostRecentLabNum);
         $newLab.find("[for^=lab-result-]").attr("for", $labResultID.slice(0, $labResultID.length - 1) + mostRecentLabNum);
         $newLab.find("[for^=lab-statement-]").prop("for", $labStatementID.slice(0, $labStatementID.length - 1) + mostRecentLabNum);
+
+        // Place $newLab before the "+" button and enable the "-" button
         $(this).before($newLab).html();
         $(this).parent().find(".remove-labs").prop("disabled", false);
     });
